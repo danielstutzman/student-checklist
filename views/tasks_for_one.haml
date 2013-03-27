@@ -1,0 +1,26 @@
+!!!html
+%html
+  %head
+    %title Student Checklist
+    %script(src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js")
+    %script{ :src => cometio_js }
+    :javascript
+      var io = new CometIO().connect();
+      io.on("update", function(hash) {
+        window.location.reload();
+      });
+  %body
+    %form(method='post' action='/student')
+      %h1 Tasks
+      %ul
+        - @tasks.each do |task|
+          %li
+            - if attempt = @task_id_to_attempt[task.id]
+              %button{ :name => 'abandon_attempt_for_task_id', :value => task.id }
+                Abandon
+              %button{ :name => 'finish_attempt_for_task_id', :value => task.id }
+                Finish
+            - else
+              %button{ :name => 'create_attempt_for_task_id', :value => task.id }
+                Start
+            = task.description
