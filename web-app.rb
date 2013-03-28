@@ -27,19 +27,19 @@ ActiveRecord::Base.establish_connection(database_params)
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 ActiveRecord::Base.logger.formatter = proc { |sev, time, prog, msg| "#{msg}\n" }
 
-class Student < ActiveRecord::Base
+class User < ActiveRecord::Base
   has_many :tasks, :through => :attempts
   #has_many :attempts
 end
 
 class Task < ActiveRecord::Base
-  has_many :students, :through => :attempts
+  has_many :users, :through => :attempts
   #has_many :attempts
 end
 
 class Attempt < ActiveRecord::Base
   belongs_to :task
-  belongs_to :student
+  belongs_to :user
 end
 
 config_path = File.join(File.dirname(__FILE__), 'config.yaml')
@@ -57,7 +57,10 @@ set :haml, { :format => :html5, :escape_html => true, :ugly => true }
 
 def authenticated?
   user_id = session[:google_plus_user_id]
-  user_id && CONFIG['AUTHORIZED_GOOGLE_PLUS_UIDS'].include?(user_id)
+  if user_id
+    @current_user = User.find_by_google_plus_user_id(user_id)
+  end
+  @current_user != nil
 end
 
 before do
@@ -78,16 +81,16 @@ get '/' do
     @tasks_by_assigned_at[task.assigned_at].push task
   end
 
-  @students = Student.all
+  @users = User.all
 
   attempts = Attempt.all
-  @attempt_by_task_id_student_id = {}
+  @attempt_by_task_id_user_id = {}
   tasks.each do |task|
-    @attempt_by_task_id_student_id[task.id] = {}
+    @attempt_by_task_id_user_id[task.id] = {}
   end
   attempts.each do |attempt|
-    if attempt_by_student_id = @attempt_by_task_id_student_id[attempt.task_id]
-      attempt_by_student_id[attempt.student_id] = attempt
+    if attempt_by_user_id = @attempt_by_task_id_user_id[attempt.task_id]
+      attempt_by_user_id[attempt.user_id] = attempt
     end
   end
 
@@ -95,12 +98,12 @@ get '/' do
 end
 
 get '/student' do
-  @student = Student.first
+  @user = User.first
 
   @tasks = Task.order('assigned_at, order_in_assigned_at')
   @task_id_to_attempt = {}
 
-  @attempts = Attempt.where('student_id = ?', @student.id)
+  @attempts = Attempt.where('user_id = ?', @user.id)
   @attempts.each do |attempt|
     @task_id_to_attempt[attempt.task_id] = attempt
   end
@@ -109,16 +112,16 @@ get '/student' do
 end
 
 post '/student' do
-  @student = Student.first
+  @user = User.first
   if task_id = params['create_attempt_for_task_id']
     task = Task.find(task_id)
-    attempt = Attempt.new({ :task => task, :student => @student, :completed => false })
+    attempt = Attempt.new({ :task => task, :user => @user, :completed => false })
     attempt.save!
   elsif task_id = params['abandon_attempt_for_task_id']
-    attempt = Attempt.where(:student_id => @student.id, :task_id => task_id).first
+    attempt = Attempt.where(:user_id => @user.id, :task_id => task_id).first
     attempt.destroy if attempt
   elsif task_id = params['finish_attempt_for_task_id']
-    attempt = Attempt.where(:student_id => @student.id, :task_id => task_id).first
+    attempt = Attempt.where(:user_id => @user.id, :task_id => task_id).first
     attempt.completed = true
     attempt.save!
   end

@@ -17,13 +17,13 @@
           %td(colspan='3')
             %b= assigned_at
         %tr
-          - @students.each do |student|
-            %th= student.initials
+          - @users.each do |user|
+            %th= user.initials
         - tasks.each do |task|
           %tr
-            - @students.each do |student|
+            - @users.each do |user|
               %td
-                - if attempt = @attempt_by_task_id_student_id[task.id][student.id]
+                - if attempt = @attempt_by_task_id_user_id[task.id][user.id]
                   = attempt.completed ? 'X' : 'I'
             %td= task.description
             %td
