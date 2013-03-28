@@ -146,6 +146,8 @@ post '/create' do
   task.order_in_assigned_at = next_order
   task.save!
 
+  CometIO.push :update, :section => 'all'
+
   redirect '/'
 end
 
