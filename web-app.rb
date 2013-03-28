@@ -170,8 +170,8 @@ end
 get '/auth/google_oauth2/callback' do
   response = request.env['omniauth.auth']
   uid = response['uid']
-  if CONFIG['AUTHORIZED_GOOGLE_PLUS_UIDS'].include?(uid)
-    session[:google_plus_user_id] = uid
+  session[:google_plus_user_id] = uid
+  if authenticated?
     redirect "/"
   else
     redirect "/auth/failure?message=Sorry,+you're+not+on+the+list.+Contact+dtstutz@gmail.com+to+be+added."
@@ -192,6 +192,11 @@ post '/delete_task' do
   task = Task.find_by_id(task_id)
   task.destroy if task
   redirect "/"
+end
+
+post '/logout' do
+  session[:google_plus_user_id] = nil
+  redirect '/'
 end
 
 after do

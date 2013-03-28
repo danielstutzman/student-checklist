@@ -1,16 +1,11 @@
-!!!html
-%html
-  %head
-    %title Student Checklist
-  %body
-    %h1 Create new task
-    %form(method='post' action='/create')
-      %label(for='date') Assigned at
-      %input{ :type=>'text', :id=>'assigned_at', :name=>'assigned_at', :value=>Date.today.strftime('%Y-%m-%d')} 
-      %br
+%h1 Create new task
+%form(method='post' action='/create')
+  %label(for='date') Assigned at
+  %input{ :type=>'text', :id=>'assigned_at', :name=>'assigned_at', :value=>Date.today.strftime('%Y-%m-%d')}
+  %br
 
-      %label(for='description') Description
-      %input(type='text' id='description' name='description') 
-      %br
+  %label(for='description') Description
+  %input(type='text' id='description' name='description')
+  %br
 
-      %button Create Task
+  %button Create Task
