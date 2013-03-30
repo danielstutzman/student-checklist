@@ -1,14 +1,3 @@
---drop table if exists tasks;
-
-create table if not exists tasks (
-  id integer primary key autoincrement,
-  description varchar(250),
-  order_in_assigned_at integer not null,
-  assigned_at char(10),
-  created_at timestamp,
-  updated_at timestamp
-);
-
 --drop table if exists users;
 
 create table if not exists users (

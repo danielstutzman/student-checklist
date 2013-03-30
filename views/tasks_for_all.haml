@@ -1,21 +1,15 @@
-%h1 Who completed what task
-%table(border='1')
-  - @tasks_by_assigned_at.each do |assigned_at, tasks|
-    %tr
-      %td(colspan='3')
-        %b= assigned_at
-    %tr
-      - @users.each do |user|
-        %th= user.initials
-    - tasks.each do |task|
-      %tr
-        - @users.each do |user|
-          %td
-            - if attempt = @attempt_by_task_id_user_id[task.id][user.id]
-              = attempt.completed ? 'X' : 'I'
-        %td= task.description
-        %td
-          %form(method='post' action='/delete_task')
-            %input{ :type=>'hidden', :name=>'task_id', :value=>task.id }
-            %button Delete
-%a(href="/new") New task
+:css
+  .task {
+    width: 100px;
+    height: 20px;
+    background-color: gray;
+    float: left;
+    margin-right: 10px;
+  }
+  .desc {
+    height: 20px;
+    display: inline-block;
+    margin-bottom: 5px;
+  }
+
+!= @content

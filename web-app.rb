@@ -28,17 +28,10 @@ ActiveRecord::Base.logger = Logger.new(STDOUT)
 ActiveRecord::Base.logger.formatter = proc { |sev, time, prog, msg| "#{msg}\n" }
 
 class User < ActiveRecord::Base
-  has_many :tasks, :through => :attempts
-  #has_many :attempts
-end
-
-class Task < ActiveRecord::Base
-  has_many :users, :through => :attempts
-  #has_many :attempts
+  has_many :attempts
 end
 
 class Attempt < ActiveRecord::Base
-  belongs_to :task
   belongs_to :user
 end
 
@@ -72,27 +65,24 @@ before do
 end
 
 get '/' do
-  tasks = Task.order('assigned_at, order_in_assigned_at')
-  @tasks_by_assigned_at = {}
-  tasks.each do |task|
-    if @tasks_by_assigned_at[task.assigned_at].nil?
-      @tasks_by_assigned_at[task.assigned_at] = []
-    end
-    @tasks_by_assigned_at[task.assigned_at].push task
-  end
-
   @users = User.all
 
   attempts = Attempt.all
   @attempt_by_task_id_user_id = {}
-  tasks.each do |task|
-    @attempt_by_task_id_user_id[task.id] = {}
-  end
   attempts.each do |attempt|
-    if attempt_by_user_id = @attempt_by_task_id_user_id[attempt.task_id]
-      attempt_by_user_id[attempt.user_id] = attempt
+    if @attempt_by_task_id_user_id[attempt.task_id].nil?
+      @attempt_by_task_id_user_id[attempt.task_id] = {}
     end
+    @attempt_by_task_id_user_id[attempt.task_id][attempt.user_id] = attempt
   end
+
+  @content = File.read('content.txt')
+  @content = @content.split("\n").map { |line|
+    line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;')
+    line = "<div class='task'></div><div class='desc'>#{line}</div><br>\n"
+  }.join("\n")
+  @content.gsub!(/^<div class='task'><\/div>(.*)(I000) ?(.*)$/,
+    "<div id='\\2' class='task'>\\2</div>\\1\\3")
 
   haml :tasks_for_all
 end
@@ -100,13 +90,13 @@ end
 get '/student' do
   @user = User.first
 
-  @tasks = Task.order('assigned_at, order_in_assigned_at')
-  @task_id_to_attempt = {}
-
-  @attempts = Attempt.where('user_id = ?', @user.id)
-  @attempts.each do |attempt|
-    @task_id_to_attempt[attempt.task_id] = attempt
-  end
+  @content = File.read('content.txt')
+  @content = @content.split("\n").map { |line|
+    line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;')
+    line = "<div class='task'></div><div class='desc'>#{line}</div><br>\n"
+  }.join("\n")
+  @content.gsub!(/^<div class='task'><\/div>(.*)(I000) ?(.*)$/,
+    "<div id='\\2' class='task'>\\2</div>\\1\\3")
 
   haml :tasks_for_one
 end
