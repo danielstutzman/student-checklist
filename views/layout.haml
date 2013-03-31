@@ -2,13 +2,22 @@
 %html
   %head
     %title= @title
-    %script(src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js")
+    %script(src="/javascripts/jquery-1.8.2.min.js")
+    %script(src='/javascripts/application.js')
+
     %script{ :src => cometio_js }
     :javascript
       var io = new CometIO().connect();
       io.on("update", function(hash) {
         window.location.reload();
       });
+    - if @attempts_json
+      %script
+        != "var attempts_json = #{@attempts_json.inspect};"
+    - if @all_initials_json
+      %script
+        != "var all_initials_json = #{@all_initials_json.inspect};"
+
   %body
     - if @current_user
       %form(method='post' action='/logout')

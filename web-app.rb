@@ -32,6 +32,7 @@ class User < ActiveRecord::Base
 end
 
 class Attempt < ActiveRecord::Base
+  attr :student_initials, true
   belongs_to :user
 end
 
@@ -56,6 +57,19 @@ def authenticated?
   @current_user != nil
 end
 
+def read_content
+  content = File.read('content.txt')
+  content = content.split("\n").map { |line|
+    line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;')
+    line = "<div class='task'></div><div class='desc'>#{line}</div><br>\n"
+  }.join("\n")
+  content = content.gsub(/^<div class='task'><\/div>(.*)(I)(001) ?(.*)$/) {
+    task_id = $3.to_i
+    "<div id='task-#{task_id}' class='task'>#{$2}#{$3}</div>#{$1}#{$4}"
+  }
+  content
+end
+
 before do
   if ['/auth/google_oauth2/callback', '/auth/failure', '/login'].include?(request.path_info)
     pass
@@ -66,6 +80,10 @@ end
 
 get '/' do
   @users = User.all
+  user_id_to_initials = {}
+  @users.each do |user|
+    user_id_to_initials[user.id] = user.initials
+  end
 
   attempts = Attempt.all
   @attempt_by_task_id_user_id = {}
@@ -76,27 +94,22 @@ get '/' do
     @attempt_by_task_id_user_id[attempt.task_id][attempt.user_id] = attempt
   end
 
-  @content = File.read('content.txt')
-  @content = @content.split("\n").map { |line|
-    line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;')
-    line = "<div class='task'></div><div class='desc'>#{line}</div><br>\n"
-  }.join("\n")
-  @content.gsub!(/^<div class='task'><\/div>(.*)(I000) ?(.*)$/,
-    "<div id='\\2' class='task'>\\2</div>\\1\\3")
+  @content = read_content
+  @attempts_json = attempts.map { |attempt|
+    {
+      'task_id'   => attempt.task_id,
+      'initials'  => attempt.user.initials,
+      'completed' => attempt.completed,
+    }
+  }.to_json
+  @all_initials_json = User.all.map { |user| user.initials }.to_json
 
   haml :tasks_for_all
 end
 
 get '/student' do
   @user = User.first
-
-  @content = File.read('content.txt')
-  @content = @content.split("\n").map { |line|
-    line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;')
-    line = "<div class='task'></div><div class='desc'>#{line}</div><br>\n"
-  }.join("\n")
-  @content.gsub!(/^<div class='task'><\/div>(.*)(I000) ?(.*)$/,
-    "<div id='\\2' class='task'>\\2</div>\\1\\3")
+  @content = read_content
 
   haml :tasks_for_one
 end
