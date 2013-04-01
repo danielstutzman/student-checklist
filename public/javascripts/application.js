@@ -37,7 +37,7 @@
     var default_selected_attempt = $([]);
     var selected_attempt = $([]);
     var attempt_to_change = $([]);
-    $('.task > .attempt').mousedown(function(event) {
+    $('.attempt').mousedown(function(event) {
       attempt_to_change = $(event.target);
       var offset = attempt_to_change.offset();
       var shifted = { top: offset.top - 5, left: offset.left - 10 };

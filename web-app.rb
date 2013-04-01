@@ -63,26 +63,28 @@ def read_content_and_task_ids
     line = '&nbsp;' if line == ''
     line = line.gsub(/`([^`]+)`/, "<code>\\1</code>")
     line = line.gsub(/(https?:\/\/[^ ]+)/, "<a href='\\1'>\\1</a>")
-    line = "<div class='task'></div><div class='desc'>#{line}</div>\n"
-    line = line.gsub(/'desc'>((  )*)([-#]) /) {
-      depth = $1.length / 2
-      if $3 == '#'
-        "'desc heading'>"
-      elsif $3 == '-'
-        "'desc bullet-#{depth}'>"
+    line = "<div class='margin-tasks'></div><div class='desc'><div class='inline-task'></div>#{line}</div>\n"
+    line = line.gsub(/'desc'>(<div class='inline-task'><\/div>)((  )*)([-#]) /) {
+      depth = $2.length / 2
+      if $4 == '#'
+        "'desc heading'>#{$1}"
+      elsif $4 == '-'
+        "'desc bullet-#{depth}'>#{$1}"
       else
-        "'desc'>"
+        "'desc'>#{$1}"
       end
     }
   }.join("\n")
   task_ids = []
   content = content.gsub(
-      /^<div class='task'><\/div>(.*)([UI])([0-9]{3}) ?(.*)$/) do
-    task_id = $3.to_i
+      /<div class='margin-tasks'><\/div><div class='([^']*)'><div class='inline-task'><\/div>(.*)([UI])([0-9]{3}) ?(.*)$/) do
+    task_id = $4.to_i
     raise "Duplicate task_id #{task_id}" if task_ids.include?(task_id)
     task_ids.push task_id
-    "<div id='task-#{task_id}' class='task'>#{$2}#{$3}</div>#{$1}#{$4}"
+    "<div id='task-#{task_id}' class='margin-tasks'></div><div class='#{$1}'><div id='task-#{task_id}' class='inline-task'></div>#{$2}#{$5}"
   end
+  content.gsub!(/<div class='margin-tasks'><\/div>/, '') # if no ID, remove
+  content.gsub!(/<div class='inline-task'><\/div>/, '') # if no ID, remove
   [content, task_ids]
 end
 
@@ -94,7 +96,7 @@ before do
   end
 end
 
-def init_variables_for(users)
+def init_variables_for(users, inline_task)
   @users = users
   user_id_to_initials = {}
   @users.each do |user|
@@ -111,6 +113,11 @@ def init_variables_for(users)
   end
 
   @content, @all_task_ids = read_content_and_task_ids
+  if inline_task
+    @content.gsub!(/<div id='task-([0-9]+)' class='margin-tasks'><\/div>/, '')
+  else
+    @content.gsub!(/<div id='task-([0-9]+)' class='inline-task'><\/div>/, '')
+  end
   @attempts = attempts.map { |attempt|
     {
       'task_id'  => attempt.task_id,
@@ -124,13 +131,13 @@ def init_variables_for(users)
 end
 
 get '/' do
-  init_variables_for(User.all)
+  init_variables_for(User.all, false)
   haml :tasks_for_all
 end
 
 get '/student' do
   @user = User.first
-  init_variables_for([@user])
+  init_variables_for([@user], true)
   haml :tasks_for_one
 end
 
