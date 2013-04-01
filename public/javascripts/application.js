@@ -81,5 +81,19 @@
         });
       }
     });
-  }); // end ready
+
+    var comet_io = new CometIO().connect();
+    comet_io.on("refresh_all", function(params) {
+      window.location.reload();
+    });
+    comet_io.on("update_attempt", function(params) {
+      var attempt_id = params['attempt_id'];
+      var new_status = params['new_status'];
+      var $attempt = $('#' + attempt_id);
+      var old_status = $attempt.attr('data-status');
+      $attempt.removeClass(old_status);
+      $attempt.addClass(new_status);
+      $attempt.attr('data-status', new_status);
+    });
+  }); // end document.ready
 })();

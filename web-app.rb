@@ -192,7 +192,8 @@ get '/auth/failure' do
 end
 
 get '/refresh_all' do
-  CometIO.push :update, :section => 'all'
+  CometIO.push :refresh_all, {}
+  'OK'
 end
 
 post '/update_attempt' do
@@ -202,6 +203,9 @@ post '/update_attempt' do
             Attempt.new(:task_id => task_id, :user_id => user.id)
   attempt.status = params['new_status']
   attempt.save!
+  CometIO.push :update_attempt,
+    :attempt_id => params['attempt_id'],
+    :new_status => params['new_status']
   'OK'
 end
 

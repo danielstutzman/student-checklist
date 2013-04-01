@@ -6,11 +6,6 @@
     %script(src='/javascripts/application.js')
 
     %script{ :src => cometio_js }
-    :javascript
-      var io = new CometIO().connect();
-      io.on("update", function(hash) {
-        window.location.reload();
-      });
     - if @attempts
       %script
         != "var attempts_json = #{@attempts.to_json.inspect};"
