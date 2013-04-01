@@ -17,6 +17,9 @@
     - if @all_initials
       %script
         != "var all_initials_json = #{@all_initials.to_json.inspect};"
+    - if @all_task_ids
+      %script
+        != "var all_task_ids_json = #{@all_task_ids.to_json.inspect};"
 
     %link(href='/stylesheets/application.css' rel='stylesheet' type='text/css')
 

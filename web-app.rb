@@ -57,12 +57,9 @@ def authenticated?
   @current_user != nil
 end
 
-def read_content
+def read_content_and_task_ids
   content = File.read('content.txt')
   content = content.split("\n").map { |line|
-    #line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#9679;&nbsp;&nbsp;')
-    #line = line.gsub(/^  - /,
-    #  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9675;&nbsp;&nbsp;')
     line = '&nbsp;' if line == ''
     line = "<div class='task'></div><div class='desc'>#{line}</div>\n"
     line = line.gsub(/'desc'>((  )*)([-#]) /) {
@@ -76,11 +73,15 @@ def read_content
       end
     }
   }.join("\n")
-  content = content.gsub(/^<div class='task'><\/div>(.*)(I)(001) ?(.*)$/) {
+  task_ids = []
+  content = content.gsub(
+      /^<div class='task'><\/div>(.*)([UI])([0-9]{3}) ?(.*)$/) do
     task_id = $3.to_i
+    raise "Duplicate task_id #{task_id}" if task_ids.include?(task_id)
+    task_ids.push task_id
     "<div id='task-#{task_id}' class='task'>#{$2}#{$3}</div>#{$1}#{$4}"
-  }
-  content
+  end
+  [content, task_ids]
 end
 
 before do
@@ -107,7 +108,7 @@ def init_variables_for(users)
     @attempt_by_task_id_user_id[attempt.task_id][attempt.user_id] = attempt
   end
 
-  @content = read_content
+  @content, @all_task_ids = read_content_and_task_ids
   @attempts = attempts.map { |attempt|
     {
       'task_id'   => attempt.task_id,

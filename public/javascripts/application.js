@@ -2,6 +2,7 @@
   $(document).ready(function() {
     var attempts = $.parseJSON(attempts_json);
     var all_initials = $.parseJSON(all_initials_json);
+    var all_task_ids = $.parseJSON(all_task_ids_json);
 
     var hash = {};
     for (var i = 0; i < attempts.length; i++) {
@@ -17,16 +18,15 @@
     }
     var task_id_to_initials_to_attempt = hash;
 
-    for (task_id in task_id_to_initials_to_attempt) {
-      var initials_to_attempt = task_id_to_initials_to_attempt[task_id];
+    for (var i = 0; i < all_task_ids.length; i++) {
+      var task_id = all_task_ids[i];
+      var initials_to_attempt = task_id_to_initials_to_attempt[task_id] || {};
+
       var $div = $('#task-' + task_id);
       var html = '';
-      for (var i = 0; i < all_initials.length; i++) {
-        var initials = all_initials[i];
-        var attempt = initials_to_attempt[initials];
-        if (attempt === undefined) {
-          attempt = { 'completed' : false };
-        }
+      for (var j = 0; j < all_initials.length; j++) {
+        var initials = all_initials[j];
+        var attempt = initials_to_attempt[initials] || {};
         var class_ = 'attempt ';
         class_ += attempt.completed ? 'completed ' : 'incomplete ';
         var x_or_not = attempt.completed ? 'X' : '-';

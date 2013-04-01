@@ -1,18 +1,28 @@
-# Monday, April 15: Setup
+Setup
 
-- Outside of system: enable wi-fi, sign up for Google+, add me to new circle on Google+ named DaVinci Coders, I'll add you to the system and my own DaVinci Coders circle, go to system web site and login with Google+
+- I001 Enable wi-fi
 - Online services
-  - Get added to Google Groups
-  - Confirm that you got the Google Groups bulk message
-  - Setup your mail client so Google Group messages go into a separate folder
-  - Click on provided Google Hangout link, install Google Hangouts, mute your mic, join the hangout, quit after you joined
-  - Click on provided HipChat link, sign up with your name, with role of Student
-  - Download and install Google Drive from provided Google Drive link
-  - Confirm that you can open files under your new Google Drive folder.
-  - Download and install either HipChat desktop app from https://davincicoders.hipchat.com/home, add it to your dock
-  - Post a hello message in the HipChat chat room
-  - Provide your github username here.  If you don't have a GitHub account, go to github.com, pick a username and password, click Sign Up for free.
-  - Provide your Heroku account's email here.  If you don't have a Heroku account, go to heroku.com, click Sign Up, and follow the steps.
+  - Google+
+    - U002 Create a profile on Google+
+    - U003 Add Daniel Stutzman to a new circle named DaVinci Coders on Google+
+    - I004 Instructor will give you permission to login to checklist app
+    - U005 Login to checklist app with Google+
+  - Google Groups
+    - I006 Instructor will add your email to Google Groups
+    - U007 Confirm that you got the Google Groups bulk message
+    - U008 Setup your mail client so Google Group messages go into a separate folder
+  - Google Hangout
+    - U009 Click on provided link and install Google Hangouts
+    - I010 Mute your mic and your sound, join the hangout, and tell the instructor that you've successfully joined
+  - HipChat
+    - U011 Click on provided HipChat link, sign up with your name, with role of Student
+    - U012 Download and install either HipChat desktop app from https://davincicoders.hipchat.com/home, add it to your dock
+    - U013 Run the HipChat desktop app, login, and post a hello message in the HipChat chat room
+  - Google Drive
+    - U014 Download and install Google Drive from provided Google Drive link
+    - U015 Confirm that you can open files under your new Google Drive folder.
+  - GitHub: Provide your github username here.  If you don't have a GitHub account, go to github.com, pick a username and password, click Sign Up for free.
+  - Heroku: Provide your Heroku account's email here.  If you don't have a Heroku account, go to heroku.com, click Sign Up, and follow the steps.
 - Installation
   - Download and install text editor, add it to your dock
   - Download and install Google Chrome, add it to your dock
@@ -32,7 +42,3 @@
   - (setup instructions to add keys to github)
   - Run Terminal, then open -e ~/.bash_profile.  If you get a doesn't exist error, run open -e ~/.profile.  Add the following lines to it... (see Setup suggestions under assembla)
 - Take survey: what version of MacOS do you have, do you have a headset yet
-
-# Wednesday, March 27: Manipulating Heroku databases
-- I001 Attend class
-- Read handout
