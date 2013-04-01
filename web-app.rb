@@ -60,8 +60,20 @@ end
 def read_content
   content = File.read('content.txt')
   content = content.split("\n").map { |line|
-    line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;')
-    line = "<div class='task'></div><div class='desc'>#{line}</div><br>\n"
+    #line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#9679;&nbsp;&nbsp;')
+    #line = line.gsub(/^  - /,
+    #  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9675;&nbsp;&nbsp;')
+    line = "<div class='task'></div><div class='desc'>#{line}</div>\n"
+    line = line.gsub(/'desc'>((  )*)([-#]) /) {
+      depth = $1.length / 2
+      if $3 == '#'
+        "'desc heading'>"
+      elsif $3 == '-'
+        "'desc bullet-#{depth}'>"
+      else
+        "'desc'>"
+      end
+    }
   }.join("\n")
   content = content.gsub(/^<div class='task'><\/div>(.*)(I)(001) ?(.*)$/) {
     task_id = $3.to_i

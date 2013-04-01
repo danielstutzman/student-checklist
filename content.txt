@@ -1,3 +1,38 @@
-Wednesday, March 27: Manipulating Heroku databases
+# Monday, April 15: Setup
+
+- Outside of system: enable wi-fi, sign up for Google+, add me to new circle on Google+ named DaVinci Coders, I'll add you to the system and my own DaVinci Coders circle, go to system web site and login with Google+
+- Online services
+  - Get added to Google Groups
+  - Confirm that you got the Google Groups bulk message
+  - Setup your mail client so Google Group messages go into a separate folder
+  - Click on provided Google Hangout link, install Google Hangouts, mute your mic, join the hangout, quit after you joined
+  - Click on provided HipChat link, sign up with your name, with role of Student
+  - Download and install Google Drive from provided Google Drive link
+  - Confirm that you can open files under your new Google Drive folder.
+  - Download and install either HipChat desktop app from https://davincicoders.hipchat.com/home, add it to your dock
+  - Post a hello message in the HipChat chat room
+  - Provide your github username here.  If you don't have a GitHub account, go to github.com, pick a username and password, click Sign Up for free.
+  - Provide your Heroku account's email here.  If you don't have a Heroku account, go to heroku.com, click Sign Up, and follow the steps.
+- Installation
+  - Download and install text editor, add it to your dock
+  - Download and install Google Chrome, add it to your dock
+  - Download and install the RailsPanel plugin from the Chrome Web Store
+  - Download and install RailsInstaller.  If you already have RVM or Rails installed, see me.  Includes Git.
+  - Download and install Heroku Toolbelt https://toolbelt.heroku.com/ if you don't already have it installed.  Includes Git
+  - Download and install PostgreSQL from http://www.postgresql.org/download/macosx/ for your version of MacOS.  If you already have it installed, see me.
+  - Download and install GitX-dev from http://rowanj.github.com/gitx/
+  - Run GitX-dev, under the GitX menu click Enable Terminal Usage
+  - Download and install DisplayLink USB graphics software from http://www.displaylink.com/support/mac_downloads.php
+- Terminal stuff
+  - Run the Terminal app, add it your dock
+  - Run the Terminal app, and under Terminal menu go to Preferences, Settings tab, Basic tab, Window tab, change rows to 80.  Under Shell tab, change When the shell exits to Close if the shell exited cleanly.
+  - gem install pry-debug
+  - gem install pg
+  - Run Terminal, then git clone (provided link) dvc
+  - (setup instructions to add keys to github)
+  - Run Terminal, then open -e ~/.bash_profile.  If you get a doesn't exist error, run open -e ~/.profile.  Add the following lines to it... (see Setup suggestions under assembla)
+- Take survey: what version of MacOS do you have, do you have a headset yet
+
+# Wednesday, March 27: Manipulating Heroku databases
 - I001 Attend class
 - Read handout

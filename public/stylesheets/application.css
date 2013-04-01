@@ -1,19 +1,39 @@
+body {
+  font-family: sans-serif;
+}
 .task {
+  clear: left;
   width: 100px;
   height: 20px;
   float: left;
   margin-right: 10px;
 }
 .desc {
-  height: 20px;
-  display: inline-block;
   margin-bottom: 5px;
 }
 .attempt {
-  border: 3px #ccc solid;
+  border: 1px #ccc solid;
+  border-left: 1px gray solid;
+  border-top: 1px gray solid;
   padding: 3px;
   width: 14px;
   height: 12px;
   float: left;
   margin-right: 4px;
+  font-size: 8pt;
+}
+.bullet-0 {
+  background: transparent url('/images/bullet-black.png') no-repeat 112px 4px;
+  padding-left: 128px;
+}
+.bullet-1 {
+  background: transparent url('/images/bullet-white.png') no-repeat 130px 4px;
+  padding-left: 150px;
+}
+.heading {
+  font-size: 30pt;
+  font-weight: bold;
+  padding-left: 110px;
+  margin-top: 30px;
+  margin-bottom: 20px;
 }
