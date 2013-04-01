@@ -113,9 +113,9 @@ def init_variables_for(users)
   @content, @all_task_ids = read_content_and_task_ids
   @attempts = attempts.map { |attempt|
     {
-      'task_id'   => attempt.task_id,
-      'initials'  => attempt.user.initials,
-      'completed' => attempt.completed,
+      'task_id'  => attempt.task_id,
+      'initials' => attempt.user.initials,
+      'status'   => attempt.status,
     }
   }
   @all_initials = users.map { |user| user.initials }
@@ -132,23 +132,6 @@ get '/student' do
   @user = User.first
   init_variables_for([@user])
   haml :tasks_for_one
-end
-
-post '/student' do
-  @user = User.first
-  if task_id = params['create_attempt_for_task_id']
-    task = Task.find(task_id)
-    attempt = Attempt.new({ :task => task, :user => @user, :completed => false })
-    attempt.save!
-  elsif task_id = params['abandon_attempt_for_task_id']
-    attempt = Attempt.where(:user_id => @user.id, :task_id => task_id).first
-    attempt.destroy if attempt
-  elsif task_id = params['finish_attempt_for_task_id']
-    attempt = Attempt.where(:user_id => @user.id, :task_id => task_id).first
-    attempt.completed = true
-    attempt.save!
-  end
-  redirect '/student'
 end
 
 get '/login' do
@@ -212,11 +195,14 @@ get '/refresh_all' do
   CometIO.push :update, :section => 'all'
 end
 
-post '/delete_task' do
-  task_id = params['task_id']
-  task = Task.find_by_id(task_id)
-  task.destroy if task
-  redirect "/"
+post '/update_attempt' do
+  _, task_id, initials = params['attempt_id'].split('-')
+  user = User.where(:initials => initials).first or raise "Can't find initials"
+  attempt = Attempt.where(:task_id => task_id, :user_id => user.id).first ||
+            Attempt.new(:task_id => task_id, :user_id => user.id)
+  attempt.status = params['new_status']
+  attempt.save!
+  'OK'
 end
 
 post '/logout' do

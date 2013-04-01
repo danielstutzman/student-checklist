@@ -48,7 +48,7 @@ create table if not exists attempts (
   id integer primary key autoincrement,
   task_id integer not null,
   user_id integer not null,
-  completed boolean not null,
+  status varchar(20) not null,
   created_at timestamp,
   updated_at timestamp
 );
@@ -56,11 +56,11 @@ create table if not exists attempts (
 insert into attempts (
   task_id,
   user_id,
-  completed,
+  status,
   created_at,
   updated_at
 ) values (
-  1,
+  'INCOMPLETE',
   (select id from users where initials = 'DS'),
   't',
   date('now'),
@@ -70,11 +70,11 @@ insert into attempts (
 insert into attempts (
   task_id,
   user_id,
-  completed,
+  status,
   created_at,
   updated_at
 ) values (
-  1,
+  'COMPLETE',
   (select id from users where initials = 'BS'),
   't',
   date('now'),

@@ -33,8 +33,9 @@
       %hr
 
     #attempt-dropdown
-      .attempt.selected(data-type='1') X
-      .attempt(data-type='2') X
+      .attempt.unstarted(data-status='unstarted')
+      .attempt.incomplete(data-status='incomplete')
+      .attempt.complete(data-status='complete')
       %br(clear='left')
 
     != yield

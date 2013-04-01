@@ -23,6 +23,18 @@ body {
   margin-right: 4px;
   font-size: 8pt;
 }
+.attempt.unstarted {
+  background-color: red;
+}
+.attempt.incomplete {
+  background-color: yellow;
+}
+.attempt.complete {
+  background-color: green;
+}
+.attempt.updating {
+  background-color: orange;
+}
 .attempt.selected {
   border: 2px blue solid;
 }
