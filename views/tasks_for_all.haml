@@ -1,2 +1,5 @@
 != erb :_margin_related_css
+- @all_initials.each_with_index do |initials, i|
+  .attempt{ :style => "position:fixed;background-color:gray;left:#{8 + i * 26}px;top:0" }
+    = initials
 != @content
