@@ -13,15 +13,18 @@ body {
   margin-bottom: 5px;
 }
 .attempt {
-  border: 1px #ccc solid;
-  border-left: 1px gray solid;
-  border-top: 1px gray solid;
+  border: 2px #ccc solid;
+  border-left: 2px gray solid;
+  border-top: 2px gray solid;
   padding: 3px;
   width: 14px;
   height: 12px;
   float: left;
   margin-right: 4px;
   font-size: 8pt;
+}
+.attempt.selected {
+  border: 2px blue solid;
 }
 /*.bullet-0 {
   background: transparent url('/images/bullet-black.png') no-repeat 112px 4px;
@@ -37,4 +40,13 @@ body {
   /*padding-left: 110px;*/
   margin-top: 30px;
   margin-bottom: 20px;
+}
+#attempt-dropdown {
+  width:100px;
+  border:1px #aaa solid;
+  box-shadow: 0px 5px 15px #aaa;
+  padding:5px;
+  position:absolute;
+  background-color:white;
+  display:none;
 }

@@ -35,5 +35,35 @@
       }
       $div.html(html);
     }
-  });
+
+    var default_selected_attempt = null;
+    var selected_attempt = null;
+    $('.task .attempt').mousedown(function(event) {
+      var offset = $(event.target).offset();
+      var shifted = { top: offset.top - 5, left: offset.left - 5 };
+      $('#attempt-dropdown').show();
+      $('#attempt-dropdown').offset(shifted);
+      default_selected_attempt =
+        $('#attempt-dropdown > .attempt.selected')[0];
+      event.preventDefault();
+    });
+    $('#attempt-dropdown > .attempt').mouseover(function(event) {
+      if (selected_attempt !== null) {
+        $(selected_attempt).removeClass('selected');
+      }
+      $(event.target).addClass('selected');
+      selected_attempt = event.target;
+    });
+    $('#attempt-dropdown > .attempt').mouseout(function(event) {
+      if (selected_attempt !== null) {
+        $(selected_attempt).removeClass('selected');
+      }
+      selected_attempt = default_selected_attempt;
+      $(selected_attempt).addClass('selected');
+    });
+    $(document).mouseup(function(event) {
+      $('#attempt-dropdown').hide();
+      console.log(selected_attempt.getAttribute('data-type'));
+    });
+  }); // end ready
 })();
