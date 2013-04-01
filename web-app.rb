@@ -61,6 +61,7 @@ def read_content_and_task_ids
   content = File.read('content.txt')
   content = content.split("\n").map { |line|
     line = '&nbsp;' if line == ''
+    line = line.gsub(/`([^`]+)`/, "<code>\\1</code>")
     line = line.gsub(/(https?:\/\/[^ ]+)/, "<a href='\\1'>\\1</a>")
     line = "<div class='task'></div><div class='desc'>#{line}</div>\n"
     line = line.gsub(/'desc'>((  )*)([-#]) /) {
