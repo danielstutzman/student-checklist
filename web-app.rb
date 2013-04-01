@@ -118,7 +118,7 @@ def init_variables_for(users)
   }
   @all_initials = users.map { |user| user.initials }
 
-  @margin = 8 + (users.size * 26)
+  @margin = 20 + (users.size * 26)
 end
 
 get '/' do

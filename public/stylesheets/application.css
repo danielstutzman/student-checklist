@@ -9,6 +9,7 @@ body {
   margin-right: 10px;
 }
 .desc {
+  padding-top: 2px;
   margin-bottom: 5px;
 }
 .attempt {
