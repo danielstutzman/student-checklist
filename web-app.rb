@@ -107,14 +107,14 @@ def init_variables_for(users)
   end
 
   @content = read_content
-  @attempts_json = attempts.map { |attempt|
+  @attempts = attempts.map { |attempt|
     {
       'task_id'   => attempt.task_id,
       'initials'  => attempt.user.initials,
       'completed' => attempt.completed,
     }
-  }.to_json
-  @all_initials_json = users.map { |user| user.initials }.to_json
+  }
+  @all_initials = users.map { |user| user.initials }
 
   @margin = 5 + (users.size * 25)
 end

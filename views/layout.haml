@@ -11,12 +11,12 @@
       io.on("update", function(hash) {
         window.location.reload();
       });
-    - if @attempts_json
+    - if @attempts
       %script
-        != "var attempts_json = #{@attempts_json.inspect};"
-    - if @all_initials_json
+        != "var attempts_json = #{@attempts.to_json.inspect};"
+    - if @all_initials
       %script
-        != "var all_initials_json = #{@all_initials_json.inspect};"
+        != "var all_initials_json = #{@all_initials.to_json.inspect};"
 
     %link(href='/stylesheets/application.css' rel='stylesheet' type='text/css')
 
