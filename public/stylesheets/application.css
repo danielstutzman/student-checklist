@@ -3,7 +3,7 @@ body {
 }
 .task {
   clear: left;
-  width: 100px;
+  /*width: 100px;*/
   height: 20px;
   float: left;
   margin-right: 10px;
@@ -22,18 +22,18 @@ body {
   margin-right: 4px;
   font-size: 8pt;
 }
-.bullet-0 {
+/*.bullet-0 {
   background: transparent url('/images/bullet-black.png') no-repeat 112px 4px;
   padding-left: 128px;
 }
 .bullet-1 {
   background: transparent url('/images/bullet-white.png') no-repeat 130px 4px;
   padding-left: 150px;
-}
+}*/
 .heading {
   font-size: 30pt;
   font-weight: bold;
-  padding-left: 110px;
+  /*padding-left: 110px;*/
   margin-top: 30px;
   margin-bottom: 20px;
 }

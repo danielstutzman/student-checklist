@@ -1,3 +1,5 @@
+!= erb :_margin_related_css
+
 -#        - if attempt = @task_id_to_attempt[task.id]
 -#          %button{ :name => 'abandon_attempt_for_task_id', :value => task.id }
 -#            Abandon
@@ -6,19 +8,5 @@
 -#        - else
 -#          %button{ :name => 'create_attempt_for_task_id', :value => task.id }
 -#            Start
-
-:css
-  .task {
-    width: 100px;
-    height: 20px;
-    background-color: gray;
-    float: left;
-    margin-right: 10px;
-  }
-  .desc {
-    height: 20px;
-    display: inline-block;
-    margin-bottom: 5px;
-  }
 
 != @content

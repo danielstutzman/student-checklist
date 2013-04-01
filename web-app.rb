@@ -90,14 +90,14 @@ before do
   end
 end
 
-get '/' do
-  @users = User.all
+def init_variables_for(users)
+  @users = users
   user_id_to_initials = {}
   @users.each do |user|
     user_id_to_initials[user.id] = user.initials
   end
 
-  attempts = Attempt.all
+  attempts = Attempt.where(:user_id => users.map { |user| user.id })
   @attempt_by_task_id_user_id = {}
   attempts.each do |attempt|
     if @attempt_by_task_id_user_id[attempt.task_id].nil?
@@ -114,15 +114,19 @@ get '/' do
       'completed' => attempt.completed,
     }
   }.to_json
-  @all_initials_json = User.all.map { |user| user.initials }.to_json
+  @all_initials_json = users.map { |user| user.initials }.to_json
 
+  @margin = 5 + (users.size * 25)
+end
+
+get '/' do
+  init_variables_for(User.all)
   haml :tasks_for_all
 end
 
 get '/student' do
   @user = User.first
-  @content = read_content
-
+  init_variables_for([@user])
   haml :tasks_for_one
 end
 
