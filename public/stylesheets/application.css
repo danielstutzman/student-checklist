@@ -1,0 +1,19 @@
+.task {
+  width: 100px;
+  height: 20px;
+  float: left;
+  margin-right: 10px;
+}
+.desc {
+  height: 20px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+.attempt {
+  border: 3px #ccc solid;
+  padding: 3px;
+  width: 14px;
+  height: 12px;
+  float: left;
+  margin-right: 4px;
+}

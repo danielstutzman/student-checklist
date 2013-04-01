@@ -18,6 +18,8 @@
       %script
         != "var all_initials_json = #{@all_initials_json.inspect};"
 
+    %link(href='/stylesheets/application.css' rel='stylesheet' type='text/css')
+
   %body
     - if @current_user
       %form(method='post' action='/logout')
