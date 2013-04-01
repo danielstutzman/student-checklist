@@ -63,6 +63,7 @@ def read_content
     #line = line.gsub(/^- /, '&nbsp;&nbsp;&nbsp;&#9679;&nbsp;&nbsp;')
     #line = line.gsub(/^  - /,
     #  '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9675;&nbsp;&nbsp;')
+    line = '&nbsp;' if line == ''
     line = "<div class='task'></div><div class='desc'>#{line}</div>\n"
     line = line.gsub(/'desc'>((  )*)([-#]) /) {
       depth = $1.length / 2
