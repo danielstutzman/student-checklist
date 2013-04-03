@@ -28,9 +28,11 @@
       %hr
 
     #attempt-dropdown
+      %p.choose-status Update task status
       .attempt.unstarted(data-status='unstarted')
       .attempt.incomplete(data-status='incomplete')
+      .attempt.question(data-status='question')
       .attempt.complete(data-status='complete')
-      %br(clear='left')
+      %p.explanation here
 
     != yield

@@ -9,34 +9,31 @@ body {
   margin-right: 10px;
 }
 .desc {
-  padding-top: 2px;
   margin-bottom: 5px;
+  line-height: 23px;
 }
 .attempt {
-  border: 2px #ccc solid;
-  border-left: 2px gray solid;
-  border-top: 2px gray solid;
   padding: 3px;
-  width: 14px;
-  height: 12px;
+  width: 18px;
+  height: 16px;
   float: left;
   margin-right: 4px;
   font-size: 8pt;
 }
 .attempt.unstarted {
-  background-color: red;
+  background-image: url('/images/gray-box.png');
 }
 .attempt.incomplete {
-  background-color: yellow;
+  background-image: url('/images/orange-wrench.png');
 }
 .attempt.complete {
-  background-color: green;
+  background-image: url('/images/green-checkbox.png');
+}
+.attempt.question {
+  background-image: url('/images/red-question.png');
 }
 .attempt.updating {
-  background-color: orange;
-}
-.attempt.selected {
-  border: 2px blue solid;
+  background: url('/images/animated-waiting.gif') no-repeat center center;
 }
 /*.bullet-0 {
   background: transparent url('/images/bullet-black.png') no-repeat 112px 4px;
@@ -54,11 +51,31 @@ body {
   margin-bottom: 20px;
 }
 #attempt-dropdown {
-  width:100px;
+  width:150px;
   border:1px #aaa solid;
   box-shadow: 0px 5px 15px #aaa;
   padding:10px;
   position:absolute;
   background-color:white;
   display:none;
+}
+#attempt-dropdown .choose-status {
+  margin: 0;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+#attempt-dropdown .explanation {
+  clear: both;
+  margin: 0;
+  padding-top: 8px;
+}
+#attempt-dropdown .attempt {
+  border: 2px white solid;
+}
+#attempt-dropdown .attempt.selected {
+  border: 2px blue solid;
+}
+.inline-task .attempt {
+  margin: 0;
+  margin-right: 10px;
 }

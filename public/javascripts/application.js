@@ -37,6 +37,12 @@
     var default_selected_attempt = $([]);
     var selected_attempt = $([]);
     var attempt_to_change = $([]);
+    var status_to_explanation = {
+      unstarted:  '(not started)',
+      incomplete: '(in progress)',
+      question:   '(stuck on something)',
+      complete:   '(done)'
+    };
     $('.attempt').mousedown(function(event) {
       attempt_to_change = $(event.target);
       var offset = attempt_to_change.offset();
@@ -49,17 +55,23 @@
       $('#attempt-dropdown > .attempt').removeClass('selected');
       selected_attempt = default_selected_attempt;
       selected_attempt.addClass('selected');
+      $('#attempt-dropdown .explanation').text(
+        status_to_explanation[old_status]);
       event.preventDefault();
     });
     $('#attempt-dropdown > .attempt').mouseover(function(event) {
       $(selected_attempt).removeClass('selected');
       selected_attempt = $(event.target);
       selected_attempt.addClass('selected');
+      $('#attempt-dropdown .explanation').text(
+        status_to_explanation[selected_attempt.attr('data-status')]);
     });
     $('#attempt-dropdown').mouseleave(function(event) {
       $(selected_attempt).removeClass('selected');
       selected_attempt = default_selected_attempt;
       $(selected_attempt).addClass('selected');
+      $('#attempt-dropdown .explanation').text(
+        status_to_explanation[default_selected_attempt.attr('data-status')]);
     });
     $(document).mouseup(function(event) {
       $('#attempt-dropdown').hide();
