@@ -43,8 +43,10 @@
       question:   '(stuck on something)',
       complete:   '(done)'
     };
+    var is_clicking_on_attempt = false;
     $('.attempt').mousedown(function(event) {
       attempt_to_change = $(event.target);
+      is_clicking_on_attempt = true;
       var offset = attempt_to_change.offset();
       var shifted = { top: offset.top - 5, left: offset.left - 10 };
       $('#attempt-dropdown').show();
@@ -73,10 +75,9 @@
       $('#attempt-dropdown .explanation').text(
         status_to_explanation[default_selected_attempt.attr('data-status')]);
     });
-    $(document).mouseup(function(event) {
-      $('#attempt-dropdown').hide();
-      var old_status = default_selected_attempt.attr('data-status');
-      var new_status = selected_attempt.attr('data-status');
+
+    var change_attempt_status = function(attempt_to_change, new_status) {
+      var old_status = attempt_to_change.attr('data-status');
       if (new_status !== old_status) {
         var post_data = {
           attempt_id: attempt_to_change.attr('id'),
@@ -92,6 +93,15 @@
           }
         });
       }
+    };
+
+    $(document).mouseup(function(event) {
+      if (is_clicking_on_attempt) {
+        $('#attempt-dropdown').hide();
+        var new_status = selected_attempt.attr('data-status');
+        change_attempt_status(attempt_to_change, new_status);
+        is_clicking_on_attempt = false;
+      }
     });
 
     var comet_io = new CometIO().connect();
@@ -106,6 +116,14 @@
       $attempt.removeClass(old_status);
       $attempt.addClass(new_status);
       $attempt.attr('data-status', new_status);
+    });
+
+    $('.desc a').click(function(event) {
+      var attempt = $(event.target).closest('.desc').find('.attempt');
+      if (attempt.attr('data-status') === 'unstarted') {
+        change_attempt_status(attempt, 'incomplete');
+      }
+      return true;
     });
   }); // end document.ready
 })();

@@ -62,7 +62,7 @@ def read_content_and_task_ids
   content = content.split("\n").map { |line|
     line = '&nbsp;' if line == ''
     line = line.gsub(/`([^`]+)`/, "<code>\\1</code>")
-    line = line.gsub(/(https?:\/\/[^ ]+)/, "<a href='\\1'>\\1</a>")
+    line = line.gsub(/(https?:\/\/[^ ,]+)/, "<a target='second' href='\\1'>\\1</a>")
     line = "<div class='margin-tasks'></div><div class='desc'><div class='inline-task'></div>#{line}</div>\n"
     line = line.gsub(/'desc'>(<div class='inline-task'><\/div>)((  )*)([-#]) /) {
       depth = $2.length / 2
