@@ -11,20 +11,15 @@ require 'treetop'
 
 set :server, ['thin'] # needed to avoid eventmachine error
 
-database_params = {
-  :adapter   => 'sqlite3',
-  :database  => 'database.sqlite3',
-}
-#database_params = {
-#  :host     => "localhost",
-#  :adapter  => "postgresql",
-#  :username => "postgres",
-#  :password => "postgres",
-#  :database => "postgres",
-#  :encoding => "unicode",
-#}
-
-ActiveRecord::Base.establish_connection(database_params)
+config_path = File.join(File.dirname(__FILE__), 'config.yaml')
+CONFIG = YAML.load_file(config_path)
+env = ENV['RACK_ENV'] || 'development'
+if env == 'development'
+  db_params = CONFIG['DATABASE_PARAMS'][env]
+  ActiveRecord::Base.establish_connection(db_params)
+else
+  # load it in unicorn.rb
+end
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 ActiveRecord::Base.logger.formatter = proc { |sev, time, prog, msg| "#{msg}\n" }
 
@@ -36,9 +31,6 @@ class Attempt < ActiveRecord::Base
   attr :student_initials, true
   belongs_to :user
 end
-
-config_path = File.join(File.dirname(__FILE__), 'config.yaml')
-CONFIG = YAML.load_file(config_path)
 
 content_string = File.read('content.txt')
 Treetop.load(File.expand_path(File.join(File.dirname(__FILE__),
