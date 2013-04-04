@@ -1,10 +1,10 @@
 Setup
 
-- I001 Enable wi-fi
+- I001 Connect to wi-fi network with SSID of DaVinci Coders
 - Online services
   - Google+
-    - U002 Create a profile on Google+
-    - U003 Add Daniel Stutzman to a new circle named DaVinci Coders on Google+
+    - U002 Go to http://plus.google.com, sign in or create a new account, and set up your Google+ profile
+    - U003 In Google+, add Daniel Stutzman (dtstutz@gmail.com) to a new circle named DaVinci Coders
     - I004 Instructor will give you permission to login to checklist app
     - U005 Login to checklist app with Google+
   - Google Groups
@@ -15,7 +15,7 @@ Setup
     - U009 Click on provided link and install Google Hangouts
     - I010 Mute your mic and your sound, join the hangout, and tell the instructor that you've successfully joined
   - HipChat
-    - U011 Click on provided HipChat link, sign up with your name, with role of Student
+    - U011 Go to https://www.hipchat.com/invite/32928/be3c1402a584458314c1f24c4f545803 and sign up with your name, with role of Student
     - U012 Download and install either HipChat desktop app from https://davincicoders.hipchat.com/home, add it to your dock
     - U013 Run the HipChat desktop app, login, and post a hello message in the HipChat chat room
   - Google Drive
@@ -40,5 +40,10 @@ Setup
   - gem install pg
   - Run Terminal, then git clone (provided link) dvc
   - (setup instructions to add keys to github)
-  - Run Terminal, then open -e ~/.bash_profile.  If you get a doesn't exist error, run open -e ~/.profile.  Add the following lines to it... (see Setup suggestions under assembla)
+  - Run Terminal, then open -e ~/.bash_profile.  If you get a doesn't exist error, run open -e ~/.profile.  Add the following lines to it:
+    "# prompt is just the working directory in reverse video
+       export PS1="\[$(tput smso)\]\w\$\[$(tput rmso)\] "
+    
+    # show colors and added symbols for ls
+    alias ls='ls -FG'"
 - Take survey: what version of MacOS do you have, do you have a headset yet

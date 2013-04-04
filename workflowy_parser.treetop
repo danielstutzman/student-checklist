@@ -1,0 +1,69 @@
+grammar Workflowy
+
+  rule document
+    line "\n\n" bullet_line_plus ( "\n" bullet_line_plus )* "\n"?
+    {
+      def title
+        self.elements[0].text_value
+      end
+      def lines
+        [self.elements[2].rewrite] + self.elements[3].elements.map do |pair|
+          pair.elements[1].rewrite
+        end
+      end
+    }
+  end
+
+  rule bullet_line_plus
+    bullet_line quoted_lines?
+    {
+      def rewrite
+        if self.elements[1].text_value == ''
+          quoted = ''
+        else
+          lines = self.elements[1].text.split("\n")
+          match = (lines[0] || '').match(/^( *)/)
+          to_subtract = match[1].size
+          lines = lines.map { |line|
+            line[to_subtract..-1]
+          }
+          quoted = lines.join("\n")
+          if quoted.start_with?('"') && quoted.end_with?('"')
+            quoted = quoted[1...-1]
+          end
+        end
+        
+        [self.elements[0].depth, self.elements[0].text, quoted]
+      end
+    }
+  end
+
+  rule bullet_line
+    '  '* '- ' line
+    {
+      def depth
+        self.elements[0].text_value.length / 2
+      end
+      def text
+        self.elements[2].text_value
+      end
+    }
+  end
+
+  rule quoted_lines
+    "\n" '  '* !'-' line ( "\n" '  '* !'-' line )*
+    {
+      def text
+        self.elements[1].text_value + self.elements[3].text_value +
+        self.elements[4].elements.map { |tuple|
+          tuple.text_value
+        }.join
+      end
+    }
+  end
+
+  rule line
+    [^\n]*
+  end
+
+end

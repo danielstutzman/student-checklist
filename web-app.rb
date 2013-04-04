@@ -7,6 +7,7 @@ require 'omniauth-google-oauth2'
 require 'yaml'
 require 'active_record'
 require 'sinatra/cometio'
+require 'treetop'
 
 set :server, ['thin'] # needed to avoid eventmachine error
 
@@ -39,6 +40,17 @@ end
 config_path = File.join(File.dirname(__FILE__), 'config.yaml')
 CONFIG = YAML.load_file(config_path)
 
+content_string = File.read('content.txt')
+Treetop.load(File.expand_path(File.join(File.dirname(__FILE__),
+  'workflowy_parser.treetop')))
+parser = WorkflowyParser.new
+tree = parser.parse(content_string)
+if tree.nil?
+  raise Exception, "Parse error at offset: #{@@parser.index}"
+end
+$content_lines = tree.lines
+tree = nil
+
 use Rack::Session::Cookie, {
   :key => 'rack.session',
   :secret => CONFIG['COOKIE_SIGNING_SECRET'],
@@ -58,22 +70,15 @@ def authenticated?
 end
 
 def read_content_and_task_ids
-  content = File.read('content.txt')
-  content = content.split("\n").map { |line|
-    line = '&nbsp;' if line == ''
+  content = $content_lines.map { |triple|
+    depth, line, additional = triple
+    if additional
+      line += '<br>' + additional.split("\n").join("<br>\n")
+    end
+
     line = line.gsub(/`([^`]+)`/, "<code>\\1</code>")
     line = line.gsub(/(https?:\/\/[^ ,]+)/, "<a target='second' href='\\1'>\\1</a>")
-    line = "<div class='margin-tasks'></div><div class='desc'><div class='inline-task'></div>#{line}</div>\n"
-    line = line.gsub(/'desc'>(<div class='inline-task'><\/div>)((  )*)([-#]) /) {
-      depth = $2.length / 2
-      if $4 == '#'
-        "'desc heading'>#{$1}"
-      elsif $4 == '-'
-        "'desc bullet-#{depth}'>#{$1}"
-      else
-        "'desc'>#{$1}"
-      end
-    }
+    line = "<div class='margin-tasks'></div><div class='desc bullet-#{depth}'><div class='inline-task'></div>#{line}</div>\n"
   }.join("\n")
   task_ids = []
   content = content.gsub(
