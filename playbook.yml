@@ -1,0 +1,51 @@
+- hosts: web
+  user: root
+  tasks:
+  - command: "/usr/sbin/adduser deployer --disabled-password --gecos '' creates=/home/deployer"
+  - command: mkdir /home/deployer/.ssh creates=/home/deployer/.ssh
+  - command: chown deployer:deployer /home/deployer/.ssh
+  - command: cp /root/.ssh/authorized_keys /home/deployer/.ssh/authorized_keys
+  - command: chown deployer:deployer /home/deployer/.ssh/authorized_keys
+  - command: chmod 0600 /home/deployer/.ssh/authorized_keys
+
+  - command: apt-get update
+
+  - apt: "pkg=ruby1.9.3"
+  - apt: "pkg=nginx"
+  - apt: "pkg=git"
+  - apt: "pkg=make"
+  - apt: "pkg=g++"
+  - apt: "pkg=postgresql"
+
+  - command: mkdir /var/lib/postgresql/.ssh creates=/var/lib/postgresql/.ssh
+  - command: chown postgres:postgres /var/lib/postgresql/.ssh
+  - command: cp /root/.ssh/authorized_keys /var/lib/postgresql/.ssh/authorized_keys
+  - command: chown postgres:postgres /var/lib/postgresql/.ssh/authorized_keys
+  - command: chmod 0600 /var/lib/postgresql/.ssh/authorized_keys
+
+  - command: gem install bundler creates=/usr/local/bin/bundle
+
+
+- hosts: web
+  user: postgres
+  tasks:
+  - command: sh -c "createuser -S -D -R student_checklist && touch .created_role_for_student_checklist" creates=/var/lib/postgresql/.created_role_for_student_checklist
+  - command: sh -c "createdb -O student_checklist student_checklist && touch .created_db_for_student_checklist" creates=/var/lib/postgresql/.created_db_for_student_checklist
+
+- hosts: web
+  user: deployer
+  tasks:
+  - command: "git clone https://github.com/danielstutzman/student-checklist creates=/home/deployer/student-checklist"
+  - command: "git pull chdir=/home/deployer/student-checklist"
+  - command: "bundle install --deployment chdir=/home/deployer/student-checklist"
+  - command: "mkdir -p tmp tmp/sockets tmp/pids log chdir=/home/deployer/student-checklist"
+  - command: sh -c "if [ -e tmp/pids/unicorn.pid ]; then cat tmp/pids/unicorn.pid | xargs kill; rm tmp/pids/unicorn.pid; fi" chdir=/home/deployer/online-ruby-tutor
+  - command: "bundle exec unicorn -c unicorn.rb -E production -D -l 0.0.0.0:3002 chdir=/home/deployer/student-checklist"
+
+  - copy: src=config.yaml dest=/home/deployer/student-checklist/config.yaml
+
+- hosts: web
+  user: root
+  tasks:
+  - copy: src=nginx.conf dest=/etc/nginx/nginx.conf
+  - command: service nginx restart

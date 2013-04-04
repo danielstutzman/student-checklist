@@ -55,6 +55,7 @@ GEM
     omniauth-oauth2 (1.1.1)
       oauth2 (~> 0.8.0)
       omniauth (~> 1.0)
+    pg (0.14.1)
     polyglot (0.3.3)
     pry (0.9.12)
       coderay (~> 1.0.5)
@@ -111,6 +112,7 @@ DEPENDENCIES
   haml
   omniauth
   omniauth-google-oauth2
+  pg
   pry-debugger
   sinatra (~> 1.3.4)
   sinatra-cometio
