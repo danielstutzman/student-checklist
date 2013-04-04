@@ -33,19 +33,23 @@ grammar Workflowy
           end
         end
         
-        [self.elements[0].depth, self.elements[0].text, quoted]
+        first = self.elements[0]
+        [first.depth, first.task_id, first.text, quoted]
       end
     }
   end
 
   rule bullet_line
-    '  '* '- ' line
+    '  '* '- ' ([UI] [0-9] 3..3)? line
     {
       def depth
         self.elements[0].text_value.length / 2
       end
-      def text
+      def task_id
         self.elements[2].text_value
+      end
+      def text
+        self.elements[3].text_value
       end
     }
   end

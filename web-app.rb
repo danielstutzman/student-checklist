@@ -70,26 +70,25 @@ def authenticated?
 end
 
 def read_content_and_task_ids
+  task_ids = []
   content = $content_lines.map { |triple|
-    depth, line, additional = triple
+    depth, optional_task_id, line, additional = triple
     if additional
       line += '<br>' + additional.split("\n").join("<br>\n")
+    end
+    if optional_task_id != ''
+      optional_task_id = (optional_task_id[1...4]).to_i
+      task_ids.push optional_task_id
     end
 
     line = line.gsub(/`([^`]+)`/, "<code>\\1</code>")
     line = line.gsub(/(https?:\/\/[^ ,]+)/, "<a target='second' href='\\1'>\\1</a>")
-    line = "<div class='margin-tasks'></div><div class='desc bullet-#{depth}'><div class='inline-task'></div>#{line}</div>\n"
+    line = "<div id='task-#{optional_task_id}' class='margin-tasks'></div><div class='desc bullet-#{depth}'><div id='task-#{optional_task_id}' class='inline-task'></div>#{line}</div>\n"
   }.join("\n")
-  task_ids = []
-  content = content.gsub(
-      /<div class='margin-tasks'><\/div><div class='([^']*)'><div class='inline-task'><\/div>(.*)([UI])([0-9]{3}) ?(.*)$/) do
-    task_id = $4.to_i
-    raise "Duplicate task_id #{task_id}" if task_ids.include?(task_id)
-    task_ids.push task_id
-    "<div id='task-#{task_id}' class='margin-tasks'></div><div class='#{$1}'><div id='task-#{task_id}' class='inline-task'></div>#{$2}#{$5}"
-  end
-  content.gsub!(/<div class='margin-tasks'><\/div>/, '') # if no ID, remove
-  content.gsub!(/<div class='inline-task'><\/div>/, '') # if no ID, remove
+
+  # if no ID, remove
+  content.gsub!(/<div id='task-' class='margin-tasks'><\/div>/, '')
+  content.gsub!(/<div id='task-' class='inline-task'><\/div>/, '')
   [content, task_ids]
 end
 
