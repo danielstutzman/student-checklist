@@ -125,5 +125,16 @@
       }
       return true;
     });
+
+    $('.desc a.show-more').click(function(event) {
+      var more = $(event.target).closest('.desc').find('.more');
+      if (more.is(':hidden')) {
+        more.show();
+      } else {
+        more.hide();
+      }
+      event.preventDefault();
+      return false;
+    });
   }); // end document.ready
 })();

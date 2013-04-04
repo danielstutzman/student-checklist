@@ -73,8 +73,9 @@ def read_content_and_task_ids
   task_ids = []
   content = $content_lines.map { |triple|
     depth, optional_task_id, line, additional = triple
-    if additional
-      line += '<br>' + additional.split("\n").join("<br>\n")
+    if (additional || '') != ''
+      line += " <a class='show-more' href='#'>(show)</a><div class='more'>" +
+        additional.split("\n").join("<br>\n") + "</div>"
     end
     if optional_task_id != ''
       optional_task_id = (optional_task_id[1...4]).to_i

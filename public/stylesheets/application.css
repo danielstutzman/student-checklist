@@ -79,3 +79,6 @@ body {
   margin: 0;
   margin-right: 10px;
 }
+.more {
+  display:none;
+}
