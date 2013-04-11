@@ -122,7 +122,9 @@ def init_variables_for(users, inline_task)
       'status'   => attempt.status,
     }
   }
-  @all_initials = users.map { |user| user.initials }
+  @all_initials = users.reject { |user| user.is_admin
+    }.sort_by { |user| [user.first_name, user.last_name]
+    }.map { |user| user.initials }
 
   @margin = 20 + (users.size * 26)
 end
