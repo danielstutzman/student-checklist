@@ -32,7 +32,7 @@
   user: postgres
   tasks:
   - command: sh -c "createuser -S -D -R student_checklist && touch .created_role_for_student_checklist" creates=/var/lib/postgresql/.created_role_for_student_checklist
-  - command: "sh -c \"echo alter user student_checklist with password 'student_checklist';\" | psql"
+  - command: "sh -c \"echo alter user student_checklist with password \\\\'student_checklist\\\\' | psql\""
   - command: sh -c "createdb -O student_checklist student_checklist && touch .created_db_for_student_checklist" creates=/var/lib/postgresql/.created_db_for_student_checklist
 
 - hosts: web
