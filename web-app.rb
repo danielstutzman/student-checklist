@@ -11,6 +11,9 @@ require 'treetop'
 
 set :server, ['thin'] # needed to avoid eventmachine error
 
+Treetop.load(File.expand_path(File.join(File.dirname(__FILE__),
+  'workflowy_parser.treetop')))
+
 config_path = File.join(File.dirname(__FILE__), 'config.yaml')
 CONFIG = YAML.load_file(config_path)
 env = ENV['RACK_ENV'] || 'development'
@@ -32,16 +35,8 @@ class Attempt < ActiveRecord::Base
   belongs_to :user
 end
 
-content_string = File.read('content.txt')
-Treetop.load(File.expand_path(File.join(File.dirname(__FILE__),
-  'workflowy_parser.treetop')))
-parser = WorkflowyParser.new
-tree = parser.parse(content_string)
-if tree.nil?
-  raise Exception, "Parse error at offset: #{@@parser.index}"
+class Outline < ActiveRecord::Base
 end
-$content_lines = tree.lines
-tree = nil
 
 use Rack::Session::Cookie, {
   :key => 'rack.session',
@@ -61,9 +56,15 @@ def authenticated?
   @current_user != nil
 end
 
-def read_content_and_task_ids
+def read_content_and_task_ids(outline)
+  parser = WorkflowyParser.new
+  tree = parser.parse(outline.text)
+  if tree.nil?
+    raise Exception, "Parse error at offset: #{@@parser.index}"
+  end
+
   task_ids = []
-  content = $content_lines.map { |triple|
+  content = tree.lines.map { |triple|
     depth, optional_task_id, line, additional = triple
     if (additional || '') != ''
       line += " <a class='show-more' href='#'>(show)</a><div class='more'>" +
@@ -93,7 +94,7 @@ before do
   end
 end
 
-def init_variables_for(users, inline_task)
+def init_variables_for(outline, users, inline_task)
   @users = users
   user_id_to_initials = {}
   @users.each do |user|
@@ -109,7 +110,7 @@ def init_variables_for(users, inline_task)
     @attempt_by_task_id_user_id[attempt.task_id][attempt.user_id] = attempt
   end
 
-  @content, @all_task_ids = read_content_and_task_ids
+  @content, @all_task_ids = read_content_and_task_ids(outline)
   if inline_task
     @content.gsub!(/<div id='task-([0-9]+)' class='margin-tasks'><\/div>/, '')
   else
@@ -130,11 +131,18 @@ def init_variables_for(users, inline_task)
 end
 
 get '/' do
+  outline = Outline.order('date desc').first
+  redirect "/#{outline.month}/#{outline.day}"
+end
+
+get '/:month/:day' do |month, day|
+  outline = Outline.where(:month => month, :day => day).first
+  not_found 'No outline found for that day.' if outline.nil?
   if @current_user.is_admin
-    init_variables_for(User.where(:is_admin => false), false)
+    init_variables_for(outline, User.where(:is_admin => false), false)
     haml :tasks_for_all
   else
-    init_variables_for([@current_user], true)
+    init_variables_for(outline, [@current_user], true)
     haml :tasks_for_one
   end
 end
