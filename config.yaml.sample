@@ -1,3 +1,15 @@
 GOOGLE_KEY: '123456789012.apps.googleusercontent.com'
 GOOGLE_SECRET: 'a1a1a1a1a1a1a1a1a1a1a1a1'
 COOKIE_SIGNING_SECRET: '12345abcdef'
+AIRBRAKE_API_KEY: '12312312312312312312312312312312'
+DATABASE_PARAMS:
+  development:
+    adapter: sqlite3
+    database: database.sqlite3
+  production:
+    host:     localhost
+    adapter:  postgresql
+    username: student_checklist
+    password: whatever
+    database: student_checklist
+    encoding: unicode

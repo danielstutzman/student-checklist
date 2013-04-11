@@ -8,6 +8,7 @@ require 'yaml'
 require 'active_record'
 require 'sinatra/cometio'
 require 'treetop'
+require 'airbrake'
 
 set :server, ['thin'] # needed to avoid eventmachine error
 
@@ -21,7 +22,8 @@ if env == 'development'
   db_params = CONFIG['DATABASE_PARAMS'][env]
   ActiveRecord::Base.establish_connection(db_params)
 else
-  # load it in unicorn.rb
+  Airbrake.configure { |config| config.api_key = CONFIG['AIRBRAKE_API_KEY'] }
+  nil # connect to database from unicorn.rb
 end
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 ActiveRecord::Base.logger.formatter = proc { |sev, time, prog, msg| "#{msg}\n" }
@@ -42,6 +44,15 @@ use Rack::Session::Cookie, {
   :key => 'rack.session',
   :secret => CONFIG['COOKIE_SIGNING_SECRET'],
 }
+
+use OmniAuth::Builder do
+  provider :google_oauth2, CONFIG['GOOGLE_KEY'], CONFIG['GOOGLE_SECRET'], {
+    :scope => 'https://www.googleapis.com/auth/plus.me',
+    :access_type => 'online',
+  }
+end
+
+use Airbrake::Sinatra
 
 set :port, 4567
 set :public_folder, 'public'
@@ -174,13 +185,6 @@ post '/create' do
   CometIO.push :update, :section => 'all'
 
   redirect '/'
-end
-
-use OmniAuth::Builder do
-  provider :google_oauth2, CONFIG['GOOGLE_KEY'], CONFIG['GOOGLE_SECRET'], {
-    :scope => 'https://www.googleapis.com/auth/plus.me',
-    :access_type => 'online',
-  }
 end
 
 # Example callback:
