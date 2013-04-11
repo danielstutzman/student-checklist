@@ -10,38 +10,6 @@ create table if not exists users (
   updated_at            timestamp
 );
 
-insert into users (
-  first_name,
-  last_name,
-  initials,
-  google_plus_user_id,
-  created_at,
-  updated_at
-) values (
-  'Daniel',
-  'Stutzman',
-  'DS',
-  '112826277336975923063',
-  date('now'),
-  date('now')
-);
-
-insert into users (
-  first_name,
-  last_name,
-  initials,
-  google_plus_user_id,
-  created_at,
-  updated_at
-) values (
-  'Ben',
-  'Stutzman',
-  'BS',
-  '12345',
-  date('now'),
-  date('now')
-);
-
 --drop table if exists attempts;
 
 create table if not exists attempts (
@@ -51,32 +19,4 @@ create table if not exists attempts (
   status varchar(20) not null,
   created_at timestamp,
   updated_at timestamp
-);
-
-insert into attempts (
-  task_id,
-  user_id,
-  status,
-  created_at,
-  updated_at
-) values (
-  'INCOMPLETE',
-  (select id from users where initials = 'DS'),
-  't',
-  date('now'),
-  date('now')
-);
-
-insert into attempts (
-  task_id,
-  user_id,
-  status,
-  created_at,
-  updated_at
-) values (
-  'COMPLETE',
-  (select id from users where initials = 'BS'),
-  't',
-  date('now'),
-  date('now')
 );
