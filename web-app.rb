@@ -67,7 +67,7 @@ def authenticated?
   @current_user != nil
 end
 
-def read_content_and_task_ids(outline)
+def read_title_content_and_task_ids(outline)
   parser = WorkflowyParser.new
   tree = parser.parse(outline.text)
   if tree.nil?
@@ -94,7 +94,7 @@ def read_content_and_task_ids(outline)
   # if no ID, remove
   content.gsub!(/<div id='task-' class='margin-tasks'><\/div>/, '')
   content.gsub!(/<div id='task-' class='inline-task'><\/div>/, '')
-  [content, task_ids]
+  [tree.title, content, task_ids]
 end
 
 before do
@@ -121,7 +121,7 @@ def init_variables_for(outline, users, inline_task)
     @attempt_by_task_id_user_id[attempt.task_id][attempt.user_id] = attempt
   end
 
-  @content, @all_task_ids = read_content_and_task_ids(outline)
+  @title, @content, @all_task_ids = read_title_content_and_task_ids(outline)
   if inline_task
     @content.gsub!(/<div id='task-([0-9]+)' class='margin-tasks'><\/div>/, '')
   else

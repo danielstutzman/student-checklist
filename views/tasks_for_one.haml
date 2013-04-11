@@ -1,12 +1,3 @@
 != erb :_margin_related_css
-
--#        - if attempt = @task_id_to_attempt[task.id]
--#          %button{ :name => 'abandon_attempt_for_task_id', :value => task.id }
--#            Abandon
--#          %button{ :name => 'finish_attempt_for_task_id', :value => task.id }
--#            Finish
--#        - else
--#          %button{ :name => 'create_attempt_for_task_id', :value => task.id }
--#            Start
-
+%h1= @title
 != @content

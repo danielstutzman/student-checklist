@@ -2,4 +2,5 @@
 - @all_initials.each_with_index do |initials, i|
   .attempt{ :style => "position:fixed;background-color:black;color:white;font-weight:bold;left:#{8 + i * 28}px;top:0" }
     = initials
+%h1= @title
 != @content
