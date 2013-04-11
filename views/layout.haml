@@ -28,6 +28,11 @@
           %button Logout
           - if @outline
             %a{:href => "/#{@outline.month}/#{@outline.day}/edit"} Edit
+      .indented
+        Links:
+        %a(href='https://drive.google.com/folderview?id=0B1n7WeUjpxvRS0VIOEhXdkQ0SmM' target='google-drive') Documents
+        %a(href='https://davincicoders.hipchat.com/home' target='hipchat')
+          HipChat
       %br(clear='both')
       %hr
 
