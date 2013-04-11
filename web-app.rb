@@ -71,7 +71,7 @@ def read_content_and_task_ids(outline)
   parser = WorkflowyParser.new
   tree = parser.parse(outline.text)
   if tree.nil?
-    raise Exception, "Parse error at offset: #{@@parser.index}"
+    raise Exception, "Parse error at offset: #{parser.index}"
   end
 
   task_ids = []
@@ -143,19 +143,55 @@ end
 
 get '/' do
   outline = Outline.order('date desc').first
-  redirect "/#{outline.month}/#{outline.day}"
+  if outline
+    redirect "/#{outline.month}/#{outline.day}"
+  else
+    not_found 'No outlines found.' if outline.nil?
+  end
 end
 
 get '/:month/:day' do |month, day|
-  outline = Outline.where(:month => month, :day => day).first
-  not_found 'No outline found for that day.' if outline.nil?
+  @outline = Outline.where(:month => month, :day => day).first
+  not_found 'No outline found for that day.' if @outline.nil?
   if @current_user.is_admin
-    init_variables_for(outline, User.where(:is_admin => false), false)
+    init_variables_for(@outline, User.where(:is_admin => false), false)
     haml :tasks_for_all
   else
-    init_variables_for(outline, [@current_user], true)
+    init_variables_for(@outline, [@current_user], true)
     haml :tasks_for_one
   end
+end
+
+get '/:month/:day/edit' do |month, day|
+  if !@current_user.is_admin
+    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+pages'
+  end
+  @outline = Outline.where(:month => month, :day => day).first || Outline.new
+  haml :edit_page
+end
+
+post '/:month/:day/edit' do |month, day|
+  if !@current_user.is_admin
+    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+pages'
+  end
+  unless %w[jan feb mar apr may jun jul aug sep oct nov dec].include?(month)
+    halt "Bad month"
+  end
+  halt "Bad day, should be 2 characters" if day.size != 2
+
+  @outline = Outline.where(:month => month, :day => day).first
+  if @outline.nil?
+    @outline = Outline.new({
+      :month => month,
+      :day   => day,
+      :year  => '2013',
+      :date  => "2013-#{month}-#{day}",
+    })
+  end
+  @outline.text = params['text'].gsub("\r\n", "\n")
+  @outline.save!
+
+  redirect "/#{month}/#{day}"
 end
 
 #get '/student' do

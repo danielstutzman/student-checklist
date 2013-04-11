@@ -20,11 +20,15 @@
 
   %body
     - if @current_user
-      %form(method='post' action='/logout')
-        You are logged in as
-        = @current_user.first_name
-        = @current_user.last_name
-        %button Logout
+      %div(style='float:right')
+        %form(method='post' action='/logout')
+          You are logged in as
+          = @current_user.first_name
+          = @current_user.last_name
+          %button Logout
+          - if @outline
+            %a{:href => "/#{@outline.month}/#{@outline.day}/edit"} Edit
+      %br(clear='both')
       %hr
 
     #attempt-dropdown

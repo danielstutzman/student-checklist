@@ -1,0 +1,6 @@
+%form{:method => 'post', :action => request.path }
+  %div(style='float:right')
+    %button(style='width:100px;height:100px') Save
+  %textarea(name='text' cols='120' rows='26')
+    = @outline ? @outline.text : ''
+
