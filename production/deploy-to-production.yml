@@ -1,0 +1,9 @@
+- hosts: web
+  user: deployer
+  tasks:
+  - command: "git pull chdir=/home/deployer/student-checklist"
+  - command: "bundle install --deployment chdir=/home/deployer/student-checklist"
+  - copy: src=../config.yaml dest=/home/deployer/student-checklist/config.yaml
+  - command: "sh -c 'RACK_ENV=production bundle exec ruby run_migrations.rb' chdir=/home/deployer/student-checklist"
+  - command: sh -c "if [ -e tmp/pids/unicorn.pid ]; then cat tmp/pids/unicorn.pid | xargs kill; rm tmp/pids/unicorn.pid; fi" chdir=/home/deployer/student-checklist
+  - command: "bundle exec unicorn -c unicorn.rb -E production -D -l 0.0.0.0:3002 chdir=/home/deployer/student-checklist"
