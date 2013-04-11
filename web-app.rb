@@ -130,15 +130,20 @@ def init_variables_for(users, inline_task)
 end
 
 get '/' do
-  init_variables_for(User.all, false)
-  haml :tasks_for_all
+  if @current_user.is_admin
+    init_variables_for(User.where(:is_admin => false), false)
+    haml :tasks_for_all
+  else
+    init_variables_for([@current_user], true)
+    haml :tasks_for_one
+  end
 end
 
-get '/student' do
-  @user = User.first
-  init_variables_for([@user], true)
-  haml :tasks_for_one
-end
+#get '/student' do
+#  @user = User.find_by_initials('DS')
+#  init_variables_for([@user], true)
+#  haml :tasks_for_one
+#end
 
 get '/login' do
   haml :login
