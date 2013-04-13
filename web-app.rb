@@ -40,6 +40,9 @@ end
 class Outline < ActiveRecord::Base
 end
 
+class Exercise < ActiveRecord::Base
+end
+
 use Rack::Session::Cookie, {
   :key => 'rack.session',
   :secret => CONFIG['COOKIE_SIGNING_SECRET'],
@@ -271,6 +274,52 @@ end
 post '/logout' do
   session[:google_plus_user_id] = nil
   redirect '/'
+end
+
+get '/exercises.yaml' do
+  html = "<form method='post' action='/exercises.yaml'>\n"
+  html += "<textarea name='yaml' cols='150' rows='50'>"
+  Exercise.order('num').each do |exercise|
+    yaml = exercise['yaml'].split("\n").map { |line| "  #{line}" }.join("\n")
+    html += "#{exercise['num']}:\n#{yaml}\n"
+  end
+  html += "</textarea>\n"
+  html += "<button>Save</button>\n"
+  html += "</form>\n"
+  html
+end
+
+post '/exercises.yaml' do
+  all_yaml = params['yaml']
+  yaml_buffer = ''
+  inside_num = nil
+  exercise_num_to_yaml = {}
+  all_yaml.split(/\r?\n/).each do |line|
+    if match = line.match(/^([0-9]+):$/)
+      if inside_num
+        exercise_num_to_yaml[inside_num] = yaml_buffer
+        yaml_buffer = ''
+      end
+      inside_num = match[1]
+    elsif match = line.match(/^  (.*)$/)
+      yaml_buffer += match[1] + "\n"
+    end
+  end
+  if inside_num
+    exercise_num_to_yaml[inside_num] = yaml_buffer
+    yaml_buffer = ''
+  end
+
+  Exercise.transaction do
+    Exercise.delete_all
+    exercise_num_to_yaml.each do |exercise_num, yaml|
+      Exercise.create({
+        :num => exercise_num,
+        :yaml => yaml,
+      })
+    end
+  end
+  redirect '/exercises.yaml'
 end
 
 after do
