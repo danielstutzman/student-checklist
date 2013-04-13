@@ -139,9 +139,9 @@ def init_variables_for(outline, users, inline_task)
 
   @title, @content, @all_task_ids = read_title_content_and_task_ids(outline)
   if inline_task
-    @content.gsub!(/<div id='task-([0-9]+)' class='margin-tasks'><\/div>/, '')
+    @content.gsub!(/<div id='task-([A-Z][0-9]+)' class='margin-tasks'><\/div>/, '')
   else
-    @content.gsub!(/<div id='task-([0-9]+)' class='inline-task'><\/div>/, '')
+    @content.gsub!(/<div id='task-([A-Z][0-9]+)' class='inline-task'><\/div>/, '')
   end
   @attempts = attempts.map { |attempt|
     {
@@ -202,12 +202,12 @@ post '/:month/:day/edit' do |month, day|
     raise Exception, "Parse error at offset: #{parser.index}"
   end
   tree.lines.each do |triple|
-    depth, optional_task_id, line, additional = triple
-    if %w[C D].include?(optional_task_id[0]) # challenge or demonstration
-      task_id = optional_task_id[1...4].to_i
+    depth, task_id, line, additional = triple
+    if %w[C D].include?(task_id[0]) # challenge or demonstration
       description_yaml = YAML.dump({ 'description' => line }).split("\n").last
       YAML.load(additional) # make sure it parses
-      exercise = Exercise.find_by_num(task_id) || Exercise.new(:num => task_id)
+      exercise = Exercise.find_by_task_id(task_id) ||
+                 Exercise.new(:task_id => task_id)
       exercise.yaml = description_yaml + "\n" + additional
       exercise.save!
     end

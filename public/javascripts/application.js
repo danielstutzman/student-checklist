@@ -28,8 +28,11 @@
         var initials = all_initials[j];
         var attempt = initials_to_attempt[initials] || { status: 'unstarted'};
         var class_ = 'attempt ' + attempt.status;
+        var firstLetterToLocked = { 'C': true, 'D': true, 'I': true };
+        var locked = firstLetterToLocked[task_id.charAt(0)] || false;
         html += "<div id='task-" + task_id + "-" + initials + "' class='" +
-          class_ + "' data-status='" + attempt.status + "'>" + "</div>";
+          class_ + "' data-status='" + attempt.status + "'" +
+          " data-locked='" + locked + "'>" + "</div>";
       }
       $div.html(html);
     }
@@ -41,7 +44,8 @@
       unstarted:  '(not started)',
       incomplete: '(in progress)',
       question:   '(stuck on something)',
-      complete:   '(done)'
+      complete:   '(done)',
+      locked:     '(must complete externally)'
     };
     var is_clicking_on_attempt = false;
     $('.attempt').mousedown(function(event) {
@@ -59,6 +63,16 @@
       selected_attempt.addClass('selected');
       $('#attempt-dropdown .explanation').text(
         status_to_explanation[old_status]);
+
+      var locked = (attempt_to_change.attr('data-locked') == 'true');
+      if (locked) {
+        $('#attempt-dropdown .attempt.locked').show();
+        $('#attempt-dropdown .attempt.complete').hide();
+      } else {
+        $('#attempt-dropdown .attempt.locked').hide();
+        $('#attempt-dropdown .attempt.complete').show();
+      }
+
       event.preventDefault();
     });
     $('#attempt-dropdown > .attempt').mouseover(function(event) {
@@ -78,7 +92,18 @@
 
     var change_attempt_status = function(attempt_to_change, new_status) {
       var old_status = attempt_to_change.attr('data-status');
-      if (new_status !== old_status) {
+      var taskTypeToLockExplanation = {
+        'C': 'Challenges are considered complete when all test cases pass.',
+        'D': 'Demonstrations are considered complete when you click on the link and then the Debug tab.',
+        'I': 'This task can only be set complete by the instructor.'
+      };
+      if (new_status == 'locked') {
+        var type = attempt_to_change.attr('id').split('-')[1].charAt(0);
+        var message = taskTypeToLockExplanation[type];
+        if (message) {
+          window.alert(message);
+        }
+      } else if (new_status !== old_status) {
         var post_data = {
           attempt_id: attempt_to_change.attr('id'),
           new_status: new_status

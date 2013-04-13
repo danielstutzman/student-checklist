@@ -32,6 +32,9 @@ body {
 .attempt.question {
   background-image: url('/images/red-question.png');
 }
+.attempt.locked {
+  background: url('/images/gray-locked-checkbox.png');
+}
 .attempt.updating {
   background: url('/images/animated-waiting.gif') no-repeat center center;
 }
