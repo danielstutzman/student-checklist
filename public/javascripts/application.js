@@ -29,7 +29,8 @@
         var attempt = initials_to_attempt[initials] || { status: 'unstarted'};
         var class_ = 'attempt ' + attempt.status;
         var firstLetterToLocked = { 'C': true, 'D': true, 'I': true };
-        var locked = firstLetterToLocked[task_id.charAt(0)] || false;
+        var locked = firstLetterToLocked[task_id.charAt(0)] &&
+          $div.hasClass('inline-task');
         html += "<div id='task-" + task_id + "-" + initials + "' class='" +
           class_ + "' data-status='" + attempt.status + "'" +
           " data-locked='" + locked + "'>" + "</div>";
