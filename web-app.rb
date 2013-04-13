@@ -54,7 +54,7 @@ end
 
 use Airbrake::Sinatra
 
-set :port, 4567
+set :port, 4002
 set :public_folder, 'public'
 set :static_cache_control, [:public, :no_cache]
 set :haml, { :format => :html5, :escape_html => true, :ugly => true }
