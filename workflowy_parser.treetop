@@ -40,7 +40,7 @@ grammar Workflowy
   end
 
   rule bullet_line
-    '  '* '- ' ([UIT] [0-9] 3..3)? line
+    '  '* '- ' ([UICD] [0-9] 3..3)? line
     {
       def depth
         self.elements[0].text_value.length / 2
@@ -55,7 +55,7 @@ grammar Workflowy
   end
 
   rule quoted_lines
-    "\n" '  '* !'-' line ( "\n" '  '* !'-' line )*
+    "\n" '  '* '"' line ( "\n" '  '* !"\"\n" line )* "\n" '  '* '"'
     {
       def text
         self.elements[1].text_value + self.elements[3].text_value +

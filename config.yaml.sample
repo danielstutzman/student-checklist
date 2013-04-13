@@ -2,6 +2,9 @@ GOOGLE_KEY: '123456789012.apps.googleusercontent.com'
 GOOGLE_SECRET: 'a1a1a1a1a1a1a1a1a1a1a1a1'
 COOKIE_SIGNING_SECRET: '12345abcdef'
 AIRBRAKE_API_KEY: '12312312312312312312312312312312'
+HOSTNAME_FOR_ONLINE_RUBY_TUTOR:
+  development: 'localhost:4001'
+  production: 'www.onlinerubytutor.com'
 DATABASE_PARAMS:
   development:
     adapter: sqlite3

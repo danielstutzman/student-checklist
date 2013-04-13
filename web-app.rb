@@ -25,6 +25,7 @@ else
   Airbrake.configure { |config| config.api_key = CONFIG['AIRBRAKE_API_KEY'] }
   nil # connect to database from unicorn.rb
 end
+ONLINE_RUBY_TUTOR = CONFIG['HOSTNAME_FOR_ONLINE_RUBY_TUTOR'][env]
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 ActiveRecord::Base.logger.formatter = proc { |sev, time, prog, msg| "#{msg}\n" }
 
@@ -80,23 +81,35 @@ def read_title_content_and_task_ids(outline)
   task_ids = []
   content = tree.lines.map { |triple|
     depth, optional_task_id, line, additional = triple
-    if (additional || '') != ''
-      line += " <a class='show-more' href='#'>(show)</a><div class='more'>" +
-        additional.split("\n").join("<br>\n") + "</div>"
-    end
+
+    line = line.gsub(/(https?:\/\/[^ ,]+)/, "<a target='second' href='\\1'>\\1</a>")
+
     if optional_task_id != ''
-      optional_task_id = (optional_task_id[1...4]).to_i
-      task_ids.push optional_task_id
+      task_id = (optional_task_id[1...4]).to_i
+      task_ids.push task_id
+
+      if optional_task_id[0] == 'C' # challenge exercise
+        line = "<a target='second' href='http://#{ONLINE_RUBY_TUTOR}/exercise/#{task_id}'>Challenge #{task_id}:</a> #{line}"
+      elsif optional_task_id[0] == 'D' # demonstration exercise
+        line = "<a target='second' href='http://#{ONLINE_RUBY_TUTOR}/exercise/#{task_id}'>Demonstration #{task_id}:</a> #{line}"
+      end
     end
 
     line = line.gsub(/`([^`]+)`/, "<code>\\1</code>")
-    line = line.gsub(/(https?:\/\/[^ ,]+)/, "<a target='second' href='\\1'>\\1</a>")
-    line = "<div id='task-#{optional_task_id}' class='margin-tasks'></div><div class='desc bullet-#{depth}'><div id='task-#{optional_task_id}' class='inline-task'></div>#{line}</div>\n"
+
+    if !%w[C D].include?(optional_task_id[0]) && (additional || '') != ''
+      line += " <a class='show-more' href='#'>(show)</a><div class='more'>" +
+        additional.split("\n").join("<br>\n") + "</div>"
+    end
+
+    line = "<div id='task-#{task_id}' class='margin-tasks'></div><div class='desc bullet-#{depth}'><div id='task-#{task_id}' class='inline-task'></div>#{line}</div>\n"
+
+    # if no ID, remove
+    line.gsub!(/<div id='task-' class='margin-tasks'><\/div>/, '')
+    line.gsub!(/<div id='task-' class='inline-task'><\/div>/, '')
+    line
   }.join("\n")
 
-  # if no ID, remove
-  content.gsub!(/<div id='task-' class='margin-tasks'><\/div>/, '')
-  content.gsub!(/<div id='task-' class='inline-task'><\/div>/, '')
   [tree.title, content, task_ids]
 end
 
@@ -182,6 +195,24 @@ post '/:month/:day/edit' do |month, day|
   end
   halt "Bad day, should be 2 characters" if day.size != 2
 
+  text = params['text'].gsub("\r\n", "\n")
+  parser = WorkflowyParser.new
+  tree = parser.parse(text)
+  if tree.nil?
+    raise Exception, "Parse error at offset: #{parser.index}"
+  end
+  tree.lines.each do |triple|
+    depth, optional_task_id, line, additional = triple
+    if %w[C D].include?(optional_task_id[0]) # challenge or demonstration
+      task_id = optional_task_id[1...4].to_i
+      description_yaml = YAML.dump({ 'description' => line }).split("\n").last
+      YAML.load(additional) # make sure it parses
+      exercise = Exercise.find_by_num(task_id) || Exercise.new(:num => task_id)
+      exercise.yaml = description_yaml + "\n" + additional
+      exercise.save!
+    end
+  end
+
   @outline = Outline.where(:month => month, :day => day).first
   if @outline.nil?
     @outline = Outline.new({
@@ -191,17 +222,20 @@ post '/:month/:day/edit' do |month, day|
       :date  => "2013-#{month}-#{day}",
     })
   end
-  @outline.text = params['text'].gsub("\r\n", "\n")
+  @outline.text = text
   @outline.save!
 
   redirect "/#{month}/#{day}"
 end
 
-#get '/student' do
-#  @user = User.find_by_initials('DS')
-#  init_variables_for([@user], true)
-#  haml :tasks_for_one
-#end
+if ENV['RACK_ENV'] != 'production'
+  get '/student' do
+    @user = User.find_by_initials('DS')
+    @outline = Outline.order('date').first
+    init_variables_for(@outline, [@user], true)
+    haml :tasks_for_one
+  end
+end
 
 get '/login' do
   haml :login
@@ -274,52 +308,6 @@ end
 post '/logout' do
   session[:google_plus_user_id] = nil
   redirect '/'
-end
-
-get '/exercises.yaml' do
-  html = "<form method='post' action='/exercises.yaml'>\n"
-  html += "<textarea name='yaml' cols='150' rows='50'>"
-  Exercise.order('num').each do |exercise|
-    yaml = exercise['yaml'].split("\n").map { |line| "  #{line}" }.join("\n")
-    html += "#{exercise['num']}:\n#{yaml}\n"
-  end
-  html += "</textarea>\n"
-  html += "<button>Save</button>\n"
-  html += "</form>\n"
-  html
-end
-
-post '/exercises.yaml' do
-  all_yaml = params['yaml']
-  yaml_buffer = ''
-  inside_num = nil
-  exercise_num_to_yaml = {}
-  all_yaml.split(/\r?\n/).each do |line|
-    if match = line.match(/^([0-9]+):$/)
-      if inside_num
-        exercise_num_to_yaml[inside_num] = yaml_buffer
-        yaml_buffer = ''
-      end
-      inside_num = match[1]
-    elsif match = line.match(/^  (.*)$/)
-      yaml_buffer += match[1] + "\n"
-    end
-  end
-  if inside_num
-    exercise_num_to_yaml[inside_num] = yaml_buffer
-    yaml_buffer = ''
-  end
-
-  Exercise.transaction do
-    Exercise.delete_all
-    exercise_num_to_yaml.each do |exercise_num, yaml|
-      Exercise.create({
-        :num => exercise_num,
-        :yaml => yaml,
-      })
-    end
-  end
-  redirect '/exercises.yaml'
 end
 
 after do
