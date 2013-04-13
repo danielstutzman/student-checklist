@@ -80,24 +80,31 @@ def read_title_content_and_task_ids(outline)
 
   task_ids = []
   content = tree.lines.map { |triple|
-    depth, optional_task_id, line, additional = triple
+    depth, task_id, line, additional = triple
 
     line = line.gsub(/(https?:\/\/[^ ,]+)/, "<a target='second' href='\\1'>\\1</a>")
 
-    if optional_task_id != ''
-      task_id = (optional_task_id[1...4]).to_i
+    if task_id != ''
       task_ids.push task_id
 
-      if optional_task_id[0] == 'C' # challenge exercise
-        line = "<a target='second' href='http://#{ONLINE_RUBY_TUTOR}/exercise/#{task_id}'>Challenge #{task_id}:</a> #{line}"
-      elsif optional_task_id[0] == 'D' # demonstration exercise
-        line = "<a target='second' href='http://#{ONLINE_RUBY_TUTOR}/exercise/#{task_id}'>Demonstration #{task_id}:</a> #{line}"
+      if task_id[0] == 'C' # challenge exercise
+        line = "<a target='second' href='http://#{ONLINE_RUBY_TUTOR}/exercise/#{task_id}'>Challenge #{task_id[1...4].to_i}:</a> #{line}"
+      elsif task_id[0] == 'D' # demonstration exercise
+        line = "<a target='second' href='http://#{ONLINE_RUBY_TUTOR}/exercise/#{task_id}'>Demonstration #{task_id[1...4].to_i}:</a> #{line}"
+        begin
+          attributes = YAML.load(additional)
+          if attributes['starting_code']
+            line += "\n<pre>#{attributes['starting_code']}</pre>\n"
+          end
+        rescue Psych::SyntaxError => e
+          line += "<br><i>#{e}</i>"
+        end
       end
     end
 
     line = line.gsub(/`([^`]+)`/, "<code>\\1</code>")
 
-    if !%w[C D].include?(optional_task_id[0]) && (additional || '') != ''
+    if !%w[C D].include?(task_id[0]) && (additional || '') != ''
       line += " <a class='show-more' href='#'>(show)</a><div class='more'>" +
         additional.split("\n").join("<br>\n") + "</div>"
     end
