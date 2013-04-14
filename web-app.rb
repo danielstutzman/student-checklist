@@ -189,9 +189,7 @@ def init_variables_for(outline, users, view_as_admin)
       'status'   => attempt.status,
     }
   }
-  @all_initials = users.sort_by { |user|
-    [user.first_name, user.last_name]
-  }.map { |user| user.initials }
+  @all_initials = users.map { |user| user.initials }
 
   @margin = 20 + (users.size * 28)
 end
@@ -206,7 +204,7 @@ get '/:month/:day' do |month, day|
   @outline = Outline.where(:month => month, :day => day).first
   not_found 'No outline found for that day.' if @outline.nil?
   if @current_user.is_admin
-    init_variables_for(@outline, User.where(:is_admin => false), true)
+    init_variables_for(@outline, User.where(:is_admin => false).order('seating_order, id'), true)
     haml :tasks_for_all
   else
     init_variables_for(@outline, [@current_user], false)
@@ -369,7 +367,7 @@ get '/users' do
   if !@current_user.is_admin
     redirect '/auth/failure?message=You+must+be+an+admin+to+edit+users'
   end
-  @users = User.order('id')
+  @users = User.order('seating_order, id')
   haml :users
 end
 
@@ -378,8 +376,8 @@ post '/users' do
     redirect '/auth/failure?message=You+must+be+an+admin+to+edit+users'
   end
 
-  fields =
-    %w[id first_name last_name initials google_plus_user_id is_admin email]
+  fields = %w[id first_name last_name initials google_plus_user_id is_admin
+    email seating_order]
 
   User.transaction do
     User.order('id').each do |user|

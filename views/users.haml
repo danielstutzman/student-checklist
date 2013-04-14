@@ -9,6 +9,7 @@
       %th google_plus_user_id
       %th is_admin
       %th email
+      %th seating_order
     - (@users + [User.new]).each do |user|
       %tr
         %td
@@ -39,6 +40,10 @@
           %input{:type => 'text', :name => "email_#{user.id}",
             :size => 30,
             :value => user.email }
+        %td
+          %input{:type => 'text', :name => "seating_order_#{user.id}",
+            :size => 2,
+            :value => user.seating_order }
   %p
     %button Update
   
