@@ -48,6 +48,18 @@ a {
 .attempt.updating {
   background: url('/images/animated-waiting.gif') no-repeat center center;
 }
+.attempt.name-label {
+  position:fixed;
+  background-color:black;
+  color:white;
+  left:0;
+  top:0;
+  padding: 0px;
+  width: 24px; /* to compensate for padding */
+  height: 22px; /* to compensate for padding */
+  font-size: 8pt;
+  line-height: 11px;
+}
 /*.bullet-0 {
   background: transparent url('/images/bullet-black.png') no-repeat 112px 4px;
   padding-left: 128px;

@@ -1,6 +1,7 @@
 != erb :_margin_related_css
-- @all_initials.each_with_index do |initials, i|
-  .attempt{ :style => "position:fixed;background-color:black;color:white;font-weight:bold;left:#{8 + i * 28}px;top:0" }
-    = initials
+- @users.each_with_index do |user, i|
+  .attempt.name-label{ :style => "left:#{8 + i * 28}px;top:0" }
+    = user.first_name[0...4]
+    = user.first_name[4..-1]
 %h1= @title
 != @content
