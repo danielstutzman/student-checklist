@@ -42,9 +42,11 @@ end
 env = ENV['RACK_ENV'] || 'development'
 if env == 'development'
   db_params = CONFIG['DATABASE_PARAMS'][env]
+  set :static_cache_control, [:public, :no_cache]
   ActiveRecord::Base.establish_connection(db_params)
 else
   Airbrake.configure { |config| config.api_key = CONFIG['AIRBRAKE_API_KEY'] }
+  set :static_cache_control, [:public, :max_age => 300]
   nil # connect to database from unicorn.rb
 end
 ONLINE_RUBY_TUTOR = CONFIG['HOSTNAME_FOR_ONLINE_RUBY_TUTOR'][env]
@@ -82,7 +84,6 @@ use Airbrake::Sinatra
 
 set :port, 4002
 set :public_folder, 'public'
-set :static_cache_control, [:public, :no_cache]
 set :haml, { :format => :html5, :escape_html => true, :ugly => true }
 
 def authenticated?
