@@ -121,7 +121,13 @@ def read_title_content_and_task_ids(outline)
 end
 
 before do
-  if ['/auth/google_oauth2/callback', '/auth/failure', '/login'].include?(request.path_info)
+  if %w[
+    /auth/google_oauth2/callback
+    /auth/failure
+    /login
+    /mark_task_complete
+    /cometio/io
+  ].include?(request.path_info)
     pass
   elsif !authenticated?
     redirect '/login'
@@ -315,6 +321,24 @@ end
 post '/logout' do
   session[:google_plus_user_id] = nil
   redirect '/'
+end
+
+post '/mark_task_complete' do
+  task_id = params['task_id']
+  user = User.find_by_google_plus_user_id(params['google_plus_user_id'])
+  if user
+    attempt = Attempt.where(:task_id => task_id, :user_id => user.id).first ||
+              Attempt.new(:task_id => task_id, :user_id => user.id)
+    if attempt
+      attempt.status = 'complete'
+      attempt.save!
+      attempt_id = "task-#{attempt.task_id}-#{user.initials}"
+      CometIO.push :update_attempt,
+        :attempt_id => attempt_id,
+        :new_status => attempt.status
+      'OK'
+    end
+  end
 end
 
 after do
