@@ -211,7 +211,7 @@ post '/:month/:day/edit' do |month, day|
   tree.lines.each do |triple|
     depth, task_id, line, additional = triple
     if %w[C D].include?(task_id[0]) # challenge or demonstration
-      description_yaml = YAML.dump({ 'description' => line }).split("\n").last
+      description_yaml = YAML.dump({ 'description' => line })
       YAML.load(additional) # make sure it parses
       exercise = Exercise.find_by_task_id(task_id) ||
                  Exercise.new(:task_id => task_id)
