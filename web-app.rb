@@ -136,7 +136,7 @@ before do
   end
 end
 
-def init_variables_for(outline, users, inline_task)
+def init_variables_for(outline, users, view_as_admin)
   @users = users
   user_id_to_initials = {}
   @users.each do |user|
@@ -153,10 +153,12 @@ def init_variables_for(outline, users, inline_task)
   end
 
   @title, @content, @all_task_ids = read_title_content_and_task_ids(outline)
-  if inline_task
-    @content.gsub!(/<div id='task-([A-Z][0-9]+)' class='margin-tasks'><\/div>/, '')
+  if view_as_admin
+    @content.gsub!(
+      /<div id='task-([A-Z][0-9]+)' class='inline-task'><\/div>/, '')
   else
-    @content.gsub!(/<div id='task-([A-Z][0-9]+)' class='inline-task'><\/div>/, '')
+    @content.gsub!(
+      /<div id='task-([A-Z][0-9]+)' class='margin-tasks'><\/div>/, '')
   end
   @attempts = attempts.map { |attempt|
     {
@@ -182,10 +184,10 @@ get '/:month/:day' do |month, day|
   @outline = Outline.where(:month => month, :day => day).first
   not_found 'No outline found for that day.' if @outline.nil?
   if @current_user.is_admin
-    init_variables_for(@outline, User.where(:is_admin => false), false)
+    init_variables_for(@outline, User.where(:is_admin => false), true)
     haml :tasks_for_all
   else
-    init_variables_for(@outline, [@current_user], true)
+    init_variables_for(@outline, [@current_user], false)
     haml :tasks_for_one
   end
 end
@@ -245,7 +247,7 @@ if ENV['RACK_ENV'] != 'production'
   get '/student' do
     @user = User.find_by_initials('DS')
     @outline = Outline.order('date').first
-    init_variables_for(@outline, [@user], true)
+    init_variables_for(@outline, [@user], false)
     haml :tasks_for_one
   end
 end
