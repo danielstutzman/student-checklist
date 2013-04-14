@@ -29,7 +29,7 @@
         var initials = all_initials[j];
         var attempt = initials_to_attempt[initials] || { status: 'unstarted'};
         var class_ = 'attempt ' + attempt.status;
-        var firstLetterToLocked = { 'C': true, 'D': true, 'I': true };
+        var firstLetterToLocked = { 'C': true, 'I': true };
         var locked = firstLetterToLocked[task_id.charAt(0)] &&
           $div.hasClass('inline-task');
         html += "<div id='task-" + task_id + "-" + initials + "' class='" +
@@ -96,7 +96,6 @@
       var old_status = attempt_to_change.attr('data-status');
       var taskTypeToLockExplanation = {
         'C': 'Challenges are considered complete when all test cases pass.',
-        'D': 'Demonstrations are considered complete when you click on the link and then the Debug tab.',
         'I': 'This task can only be set complete by the instructor.'
       };
       if (new_status == 'locked') {
