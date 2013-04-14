@@ -193,7 +193,7 @@ def init_variables_for(outline, users, view_as_admin)
     [user.first_name, user.last_name]
   }.map { |user| user.initials }
 
-  @margin = 20 + (users.size * 26)
+  @margin = 20 + (users.size * 28)
 end
 
 get '/' do
