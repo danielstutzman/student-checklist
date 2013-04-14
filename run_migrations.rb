@@ -1,6 +1,7 @@
 require 'active_record'
 require 'logger'
 require 'yaml'
+require 'uri'
 
 config_path = File.join(File.dirname(__FILE__), 'config.yaml')
 if File.exists?(config_path)
