@@ -15,7 +15,18 @@ Treetop.load(File.expand_path(File.join(File.dirname(__FILE__),
   'workflowy_parser.treetop')))
 
 config_path = File.join(File.dirname(__FILE__), 'config.yaml')
-CONFIG = YAML.load_file(config_path)
+if File.exists?(config_path)
+  CONFIG = YAML.load_file(config_path)
+else
+  CONFIG = {}
+  missing = []
+  %w[GOOGLE_KEY GOOGLE_SECRET COOKIE_SIGNING_SECRET AIRBRAKE_API_KEY].each do
+    |key| CONFIG[key] = ENV[key] or missing.push key
+  end
+  if missing.size > 0
+    raise "Missing config.yaml and ENV keys #{missing.join(', ')}"
+  end
+end
 env = ENV['RACK_ENV'] || 'development'
 if env == 'development'
   db_params = CONFIG['DATABASE_PARAMS'][env]
