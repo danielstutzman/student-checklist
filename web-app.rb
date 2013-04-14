@@ -109,7 +109,9 @@ def read_title_content_and_task_ids(outline)
         additional.split("\n").join("<br>\n") + "</div>"
     end
 
-    line = "<div id='task-#{task_id}' class='margin-tasks'></div><div class='desc bullet-#{depth}'><div id='task-#{task_id}' class='inline-task'></div>#{line}</div>\n"
+    comment_class = (line.start_with?('#')) ? 'comment' : ''
+
+    line = "<div id='task-#{task_id}' class='margin-tasks'></div><div class='desc bullet-#{depth} #{comment_class}'><div id='task-#{task_id}' class='inline-task'></div>#{line}</div>\n"
 
     # if no ID, remove
     line.gsub!(/<div id='task-' class='margin-tasks'><\/div>/, '')
