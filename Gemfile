@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-gem 'pry-debugger', :group => 'development'
 gem 'sinatra', '~>1.3.4'
 gem 'haml'
 gem 'unicorn', :group => 'production'
