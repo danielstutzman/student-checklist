@@ -1,5 +1,6 @@
 (function () {
   $(document).ready(function() {
+    if (typeof(attempts_json) !== 'undefined') {
     var attempts = $.parseJSON(attempts_json);
     var all_initials = $.parseJSON(all_initials_json);
     var all_task_ids = $.parseJSON(all_task_ids_json);
@@ -162,5 +163,6 @@
       event.preventDefault();
       return false;
     });
+    } // end if attempts_json defined
   }); // end document.ready
 })();
