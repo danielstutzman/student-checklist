@@ -171,12 +171,9 @@ def init_variables_for(outline, users, inline_task)
 end
 
 get '/' do
-  outline = Outline.order('date desc').first
-  if outline
-    redirect "/#{outline.month}/#{outline.day}"
-  else
-    not_found 'No outlines found.' if outline.nil?
-  end
+  @outlines =
+    Outline.select('id, date, month, day, first_line').order('date desc')
+  haml :outlines
 end
 
 get '/:month/:day' do |month, day|
@@ -236,6 +233,7 @@ post '/:month/:day/edit' do |month, day|
     })
   end
   @outline.text = text
+  @outline.first_line = text.split("\n").first
   @outline.save!
 
   redirect "/#{month}/#{day}"
