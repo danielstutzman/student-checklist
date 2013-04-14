@@ -23,6 +23,7 @@ else
   %w[GOOGLE_KEY GOOGLE_SECRET COOKIE_SIGNING_SECRET AIRBRAKE_API_KEY].each do
     |key| CONFIG[key] = ENV[key] or missing.push key
   end
+  CONFIG['HOSTNAME_FOR_ONLINE_RUBY_TUTOR'] = { 'production' => ENV['HOSTNAME_FOR_ONLINE_RUBY_TUTOR'] } or missing.push 'HOSTNAME_FOR_ONLINE_RUBY_TUTOR'
   if missing.size > 0
     raise "Missing config.yaml and ENV keys #{missing.join(', ')}"
   end
