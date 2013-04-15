@@ -204,7 +204,7 @@ end
 get '/:month/:day' do |month, day|
   @outline = Outline.where(:month => month, :day => day).first
   not_found 'No outline found for that day.' if @outline.nil?
-  if @current_user.is_admin
+  if @current_user.is_admin && params['as_student'] != 'true'
     init_variables_for(@outline, User.where(:is_admin => false).order('seating_order, id'), true)
     haml :tasks_for_all
   else
@@ -262,15 +262,6 @@ post '/:month/:day/edit' do |month, day|
   @outline.save!
 
   redirect "/#{month}/#{day}"
-end
-
-if ENV['RACK_ENV'] != 'production'
-  get '/student' do
-    @user = User.find_by_initials('DS')
-    @outline = Outline.order('date').first
-    init_variables_for(@outline, [@user], false)
-    haml :tasks_for_one
-  end
 end
 
 get '/login' do
