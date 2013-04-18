@@ -1,0 +1,11 @@
+%h1 Students
+%table
+  %tr
+    %th first_name
+    %th last_name
+    %th email
+  - @students.each do |user|
+    %tr
+      %td= user.first_name
+      %td= user.last_name
+      %td= user.email

@@ -355,6 +355,11 @@ post '/mark_task_complete' do
   end
 end
 
+get '/students' do
+  @students = User.where(:is_admin => false).order('id')
+  haml :students
+end
+
 get '/users' do
   if !@current_user.is_admin
     redirect '/auth/failure?message=You+must+be+an+admin+to+edit+users'
