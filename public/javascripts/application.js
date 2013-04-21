@@ -29,7 +29,7 @@
         var initials = all_initials[j];
         var attempt = initials_to_attempt[initials] || { status: 'unstarted'};
         var class_ = 'attempt ' + attempt.status;
-        var firstLetterToLocked = { 'C': true, 'I': true };
+        var firstLetterToLocked = { 'C': true, 'I': true, 'G': true };
         var locked = firstLetterToLocked[task_id.charAt(0)] &&
           $div.hasClass('inline-task');
         html += "<div id='task-" + task_id + "-" + initials + "' class='" +
@@ -96,7 +96,8 @@
       var old_status = attempt_to_change.attr('data-status');
       var taskTypeToLockExplanation = {
         'C': 'Challenges are considered complete when all test cases pass.',
-        'I': 'This task can only be set complete by the instructor.'
+        'I': 'This task can only be set complete by the instructor.',
+        'G': 'To complete this challenge, get all tests passing from ruby run_tests.rb, then commit and push from GitX.'
       };
       if (new_status == 'locked') {
         var type = attempt_to_change.attr('id').split('-')[1].charAt(0);
@@ -162,6 +163,13 @@
       event.preventDefault();
       return false;
     });
+
+    $('.desc a.github-challenge').click(function(event) {
+      alert("To start this challenge:\n1. Start a Terminal window\n2. Run git pull --rebase to obtain the latest code\n3. cd to the exercise number\n4. Create a student_code.rb file.\n5. Run ruby run_tests.rb and see what the tests need to pass.")
+      event.preventDefault();
+      return false;
+    });
+
     } // end if attempts_json defined
   }); // end document.ready
 })();

@@ -124,6 +124,8 @@ def read_title_content_and_task_ids(outline)
         rescue Psych::SyntaxError => e
           line += "<br><i>#{e}</i>"
         end
+      elsif task_id[0] == 'G' # GitHub challenge
+        line = "<a class='github-challenge' href='#'>GitHub challenge #{task_id[1...4].to_i}</a>: #{line}"
       end
     end
 
