@@ -14,9 +14,12 @@ set :server, ['thin'] # needed to avoid eventmachine error
 Treetop.load(File.expand_path(File.join(File.dirname(__FILE__),
   'workflowy_parser.treetop')))
 
+env = ENV['RACK_ENV'] || 'development'
 config_path = File.join(File.dirname(__FILE__), 'config.yaml')
 if File.exists?(config_path)
   CONFIG = YAML.load_file(config_path)
+  db_params = CONFIG['DATABASE_PARAMS'][env]
+  ActiveRecord::Base.establish_connection(db_params)
 else # for Heroku, which doesn't support creating config.yaml
   CONFIG = {}
   missing = []
@@ -39,19 +42,18 @@ else # for Heroku, which doesn't support creating config.yaml
     :encoding => 'utf8',
   })
 end
-env = ENV['RACK_ENV'] || 'development'
+
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+ActiveRecord::Base.logger.formatter = proc { |sev, time, prog, msg| "#{msg}\n" }
+
 if env == 'development'
-  db_params = CONFIG['DATABASE_PARAMS'][env]
   set :static_cache_control, [:public, :no_cache]
-  ActiveRecord::Base.establish_connection(db_params)
 else
   Airbrake.configure { |config| config.api_key = CONFIG['AIRBRAKE_API_KEY'] }
   set :static_cache_control, [:public, :max_age => 300]
-  nil # connect to database from unicorn.rb
 end
+
 ONLINE_RUBY_TUTOR = CONFIG['HOSTNAME_FOR_ONLINE_RUBY_TUTOR'][env]
-ActiveRecord::Base.logger = Logger.new(STDOUT)
-ActiveRecord::Base.logger.formatter = proc { |sev, time, prog, msg| "#{msg}\n" }
 
 class User < ActiveRecord::Base
   has_many :attempts
@@ -339,7 +341,13 @@ end
 
 post '/mark_task_complete' do
   task_id = params['task_id']
-  user = User.find_by_google_plus_user_id(params['google_plus_user_id'])
+
+  if params['google_plus_user_id']
+    user = User.find_by_google_plus_user_id(params['google_plus_user_id'])
+  elsif params['initials']
+    user = User.find_by_initials(params['initials'])
+  end
+
   if user
     attempt = Attempt.where(:task_id => task_id, :user_id => user.id).first ||
               Attempt.new(:task_id => task_id, :user_id => user.id)
