@@ -165,7 +165,7 @@
     });
 
     $('.desc a.github-challenge').click(function(event) {
-      alert("To start this challenge:\n1. Start a Terminal window\n2. Run git pull --rebase to obtain the latest code\n3. cd to the exercise number\n4. Create a student_code.rb file.\n5. Run ruby run_tests.rb and see what the tests need to pass.")
+      alert("To start this challenge:\n1. Start a Terminal window\n2. Run git pull to obtain the latest code\n3. cd to the exercise number\n4. Create a student_code.rb file.\n5. Run ruby run_tests.rb and see what the tests need to pass.")
       event.preventDefault();
       return false;
     });
