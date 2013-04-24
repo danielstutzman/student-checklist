@@ -209,7 +209,8 @@ get '/:month/:day' do |month, day|
   @outline = Outline.where(:month => month, :day => day).first
   not_found 'No outline found for that day.' if @outline.nil?
   if @current_user.is_admin && params['as_student'] != 'true'
-    init_variables_for(@outline, User.where(:is_admin => false).order('seating_order, id'), true)
+    students = User.where(:is_student => true).order('seating_order, id')
+    init_variables_for(@outline, students, true)
     haml :tasks_for_all
   else
     init_variables_for(@outline, [@current_user], false)
@@ -366,7 +367,7 @@ post '/mark_task_complete' do
 end
 
 get '/students' do
-  @students = User.where(:is_admin => false).order('id')
+  @students = User.where(:is_student => true).order('id')
   haml :students
 end
 
@@ -384,7 +385,7 @@ post '/users' do
   end
 
   fields = %w[id first_name last_name initials google_plus_user_id is_admin
-    email seating_order]
+    is_student email seating_order]
 
   User.transaction do
     User.order('id').each do |user|

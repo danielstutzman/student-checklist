@@ -8,6 +8,7 @@
       %th initials
       %th google_plus_user_id
       %th is_admin
+      %th is_student
       %th email
       %th seating_order
     - (@users + [User.new]).each do |user|
@@ -36,6 +37,9 @@
         %td
           %input{:type => 'text', :name => "is_admin_#{user.id}", :size => 1,
             :value => user.is_admin ? 't' : 'f' }
+        %td
+          %input{:type => 'text', :name => "is_student_#{user.id}", :size => 1,
+            :value => user.is_student ? 't' : 'f' }
         %td
           %input{:type => 'text', :name => "email_#{user.id}",
             :size => 30,
