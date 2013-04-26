@@ -107,6 +107,7 @@ def read_title_content_and_task_ids(outline)
   content = tree.lines.map { |triple|
     depth, task_id, line, additional = triple
 
+    line = Rack::Utils.escape_html(line)
     line = line.gsub(/(https?:\/\/[^ ,]+)/, "<a target='second' href='\\1'>\\1</a>")
 
     if task_id != ''
