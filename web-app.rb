@@ -260,7 +260,7 @@ post '/:month/:day/edit' do |month, day|
 
     exercise = Exercise.find_by_task_id(task_id) ||
                Exercise.new(:task_id => task_id)
-    if exercise.outline_id && @outline && exercise.outline_id != @outline
+    if exercise.outline_id && @outline && exercise.outline_id != @outline.id
       raise "Task #{task_id} already belongs to outline #{exercise.outline_id}"
     end
 
