@@ -29,7 +29,8 @@
         var initials = all_initials[j];
         var attempt = initials_to_attempt[initials] || { status: 'unstarted'};
         var class_ = 'attempt ' + attempt.status;
-        var firstLetterToLocked = { 'C': true, 'I': true, 'G': true };
+        var firstLetterToLocked =
+          { 'A': true, 'C': true, 'I': true, 'G': true };
         var locked = firstLetterToLocked[task_id.charAt(0)] &&
           $div.hasClass('inline-task');
         html += "<div id='task-" + task_id + "-" + initials + "' class='" +
@@ -95,6 +96,7 @@
     var change_attempt_status = function(attempt_to_change, new_status) {
       var old_status = attempt_to_change.attr('data-status');
       var taskTypeToLockExplanation = {
+        'A': 'Instructor will take attendance; mark box as red speech bubble if you came in late and were overlooked.',
         'C': 'Challenges are considered complete when all test cases pass.',
         'I': 'This task can only be set complete by the instructor.',
         'G': 'To complete this challenge, get all tests passing from ruby run_tests.rb, then commit and push from GitX.'

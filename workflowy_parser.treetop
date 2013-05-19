@@ -40,7 +40,7 @@ grammar Workflowy
   end
 
   rule bullet_line
-    '  '* '- ' ([UICDG] [0-9] 3..3)? line
+    '  '* '- ' ([UICDGA] [0-9] 3..3)? line
     {
       def depth
         self.elements[0].text_value.length / 2

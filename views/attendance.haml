@@ -1,0 +1,16 @@
+%h1 Attendance
+%table(border='1')
+  %tr
+    %th
+    - @students.each do |student|
+      %th= student.initials
+  - @outlines.each do |outline|
+    - exercise = Exercise.where("task_id like 'A%' and outline_id = #{outline.id}").first
+    %tr
+      %td= outline.date
+      - if exercise
+        - @students.each do |student|
+          %td
+            - attempt = Attempt.where("user_id=? and task_id=?", student.id, exercise.task_id).first
+            - if attempt
+              %div{ :class => "attempt #{attempt.status}" }

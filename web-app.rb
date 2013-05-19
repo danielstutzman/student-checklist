@@ -65,9 +65,11 @@ class Attempt < ActiveRecord::Base
 end
 
 class Outline < ActiveRecord::Base
+  has_many :exercises
 end
 
 class Exercise < ActiveRecord::Base
+  belongs_to :outline
 end
 
 use Rack::Session::Cookie, {
@@ -242,19 +244,34 @@ post '/:month/:day/edit' do |month, day|
   if tree.nil?
     raise Exception, "Parse error at offset: #{parser.index}"
   end
+
+  @outline = Outline.where(:month => month, :day => day).first
+
+  all_task_ids = {}
   tree.lines.each do |triple|
     depth, task_id, line, additional = triple
+    next if task_id == ''
+
+    if all_task_ids[task_id]
+      raise "Task_id #{task_id} mentioned twice in page"
+    else
+      all_task_ids[task_id] = true
+    end
+
+    exercise = Exercise.find_by_task_id(task_id) ||
+               Exercise.new(:task_id => task_id)
+    if exercise.outline_id && @outline && exercise.outline_id != @outline
+      raise "Task #{task_id} already belongs to outline #{exercise.outline_id}"
+    end
+
     if %w[C D].include?(task_id[0]) # challenge or demonstration
       description_yaml = YAML.dump({ 'description' => line })
       YAML.load(additional) # make sure it parses
-      exercise = Exercise.find_by_task_id(task_id) ||
-                 Exercise.new(:task_id => task_id)
       exercise.yaml = description_yaml + "\n" + additional
-      exercise.save!
     end
+    exercise.save!
   end
 
-  @outline = Outline.where(:month => month, :day => day).first
   if @outline.nil?
     @outline = Outline.new({
       :month => month,
@@ -266,6 +283,14 @@ post '/:month/:day/edit' do |month, day|
   @outline.text = text
   @outline.first_line = text.split("\n").first
   @outline.save!
+
+  tree.lines.each do |triple|
+    depth, task_id, line, additional = triple
+    next if task_id == ''
+    exercise = Exercise.find_by_task_id(task_id)
+    exercise.outline_id = @outline.id
+    exercise.save!
+  end
 
   redirect "/#{month}/#{day}"
 end
@@ -410,6 +435,12 @@ post '/users' do
   redirect '/users'
 end
 
+
+get '/attendance' do
+  @students = User.where(:is_student => true).order('id')
+  @outlines = Outline.order("date")
+  haml :attendance
+end
 after do
   ActiveRecord::Base.clear_active_connections!
 end
