@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 gem 'sinatra', '~>1.3.4'
 gem 'haml'
-gem 'unicorn', :group => 'production'
 gem 'omniauth'
 gem 'omniauth-google-oauth2'
 gem 'activerecord'

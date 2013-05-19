@@ -44,8 +44,8 @@
   - copy: src=../config.yaml dest=/home/deployer/student-checklist/config.yaml
   - command: "sh -c 'RACK_ENV=production bundle exec ruby run_migrations.rb' chdir=/home/deployer/student-checklist"
   - command: "mkdir -p tmp tmp/sockets tmp/pids log chdir=/home/deployer/student-checklist"
-  - command: sh -c "if [ -e tmp/pids/unicorn.pid ]; then cat tmp/pids/unicorn.pid | xargs kill; rm tmp/pids/unicorn.pid; fi" chdir=/home/deployer/student-checklist
-  - command: "bundle exec unicorn -c unicorn.rb -E production -D -l 0.0.0.0:3002 chdir=/home/deployer/student-checklist"
+  - command: sh -c "if [ -e tmp/pids/thin.pid ]; then cat tmp/pids/thin.pid | xargs kill; rm tmp/pids/thin.pid; fi" chdir=/home/deployer/student-checklist
+  - command: "bundle exec thin start -p 3003 -e production -d chdir=/home/deployer/student-checklist"
 
 - hosts: web
   user: root
