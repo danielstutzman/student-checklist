@@ -8,6 +8,7 @@ require 'active_record'
 require 'sinatra/cometio'
 require 'treetop'
 require 'airbrake'
+require 'backburner'
 
 set :server, ['thin'] # needed to avoid eventmachine error
 
@@ -90,6 +91,26 @@ set :port, 4002
 set :public_folder, 'public'
 set :haml, { :format => :html5, :escape_html => true, :ugly => true }
 
+Backburner.configure do |config|
+  config.beanstalk_url    = ['beanstalk://127.0.0.1']
+  config.tube_namespace   = 'backburner.worker.queue.student-checklist'
+  config.on_error         = lambda { |e| puts e }
+  #config.max_job_retries  = 3 # default 0 retries
+  #config.retry_delay      = 2 # default 5 seconds
+  config.default_priority = 65536
+  config.respond_timeout  = 120
+  config.default_worker   = Backburner::Workers::Simple
+  config.logger           = Logger.new(STDOUT)
+end
+
+class RerunTestsJob
+  include Backburner::Queue
+  queue_priority 10000 # most urgent priority is 0
+
+  def self.perform(initials, task_id)
+  end
+end
+
 def authenticated?
   user_id = session[:google_plus_user_id]
   if user_id
@@ -159,6 +180,7 @@ before do
     /login
     /mark_task_complete
     /cometio/io
+    /github_post_receive_web_hook
   ].include?(request.path_info)
     pass
   elsif !authenticated?
@@ -411,7 +433,7 @@ post '/users' do
   end
 
   fields = %w[id first_name last_name initials google_plus_user_id is_admin
-    is_student email seating_order]
+    is_student email seating_order github_username]
 
   User.transaction do
     User.order('id').each do |user|
@@ -437,12 +459,37 @@ post '/users' do
   redirect '/users'
 end
 
+post '/github_post_receive_web_hook' do
+  initials_to_exercise_nums = {}
+  json = JSON.load(request.body.read)
+  json['commits'].each do |commit|
+    author = User.find_by_github_username(commit['author']['username'])
+    if author
+      paths = commit['added'] + commit['modified'] + commit['removed']
+      exercise_nums = paths.map { |path| path.split("/")[0] }
+      exercise_nums.reject! { |num| num.to_i.to_s != num } # only numeric
+      exercise_nums.each do |exercise_num|
+        if initials_to_exercise_nums[author.initials].nil?
+          initials_to_exercise_nums[author.initials] = {}
+        end
+        initials_to_exercise_nums[author.initials][exercise_num] = true
+      end
+    end
+  end
+
+  initials_to_exercise_nums.each do |initials, exercise_nums|
+    Backburner.enqueue RerunTestsJob, initials, exercise_nums.keys.sort
+  end
+
+  "OK\n"
+end
 
 get '/attendance' do
   @students = User.where(:is_student => true).order('id')
   @outlines = Outline.order("date")
   haml :attendance
 end
+
 after do
   ActiveRecord::Base.clear_active_connections!
 end

@@ -11,6 +11,7 @@
       %th is_student
       %th email
       %th seating_order
+      %th github_username
     - (@users + [User.new]).each do |user|
       %tr
         %td
@@ -48,6 +49,9 @@
           %input{:type => 'text', :name => "seating_order_#{user.id}",
             :size => 2,
             :value => user.seating_order }
+        %td
+          %input{:type => 'text', :name => "github_username_#{user.id}",
+            :value => user.github_username }
   %p
     %button Update
   
