@@ -67,6 +67,9 @@ end
 
 class Outline < ActiveRecord::Base
   has_many :exercises
+  def first_line_html
+    backticks_to_html(h(self.first_line))
+  end
 end
 
 class Exercise < ActiveRecord::Base
@@ -91,6 +94,13 @@ set :port, 4002
 set :public_folder, 'public'
 set :haml, { :format => :html5, :escape_html => true, :ugly => true }
 
+def h(text)
+  Rack::Utils.escape_html(text)
+end
+def backticks_to_html(text)
+  text.gsub(/`([^`]+)`/, "<code>\\1</code>")
+end
+
 beanstalk = Beaneater::Pool.new('127.0.0.1:11300')
 
 def authenticated?
@@ -107,6 +117,9 @@ def read_title_content_and_task_ids(outline)
   if tree.nil?
     raise Exception, "Parse error at offset: #{parser.index}"
   end
+
+  title_text = tree.title.gsub('`', '')
+  title_html = backticks_to_html(h(tree.title))
 
   task_ids = []
   content = tree.lines.map { |triple|
@@ -135,7 +148,7 @@ def read_title_content_and_task_ids(outline)
       end
     end
 
-    line = line.gsub(/`([^`]+)`/, "<code>\\1</code>")
+    line = backticks_to_html(line)
 
     if !%w[C D].include?(task_id[0]) && (additional || '') != ''
       line += " <a class='show-more' href='#'>(show)</a><div class='more'>" +
@@ -152,7 +165,7 @@ def read_title_content_and_task_ids(outline)
     line
   }.join("\n")
 
-  [tree.title, content, task_ids]
+  [title_text, title_html, content, task_ids]
 end
 
 before do
@@ -186,7 +199,8 @@ def init_variables_for(outline, users, view_as_admin)
     @attempt_by_task_id_user_id[attempt.task_id][attempt.user_id] = attempt
   end
 
-  @title, @content, @all_task_ids = read_title_content_and_task_ids(outline)
+  @title_text, @title_html, @content, @all_task_ids =
+    read_title_content_and_task_ids(outline)
   if view_as_admin
     @content.gsub!(
       /<div id='task-([A-Z][0-9]+)' class='inline-task'><\/div>/, '')

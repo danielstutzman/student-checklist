@@ -3,7 +3,7 @@
   - @outlines.each do |outline|
     %li
       %a{:href => "/#{outline.month}/#{outline.day}"}
-        = outline.first_line
+        != outline.first_line_html
 
 %hr
 %h2 Schedule (tentative)
