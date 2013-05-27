@@ -17,14 +17,10 @@ GEM
       builder
       json
     arel (3.0.2)
-    backburner (0.3.3)
-      beaneater (~> 0.3.0)
-      dante (~> 0.1.5)
     backports (3.0.3)
     beaneater (0.3.0)
     builder (3.0.4)
     daemons (1.1.9)
-    dante (0.1.5)
     event_emitter (0.2.2)
     eventmachine (1.0.0)
     faraday (0.8.7)
@@ -96,7 +92,8 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   airbrake
-  backburner
+  beaneater
+  daemons
   haml
   omniauth
   omniauth-google-oauth2

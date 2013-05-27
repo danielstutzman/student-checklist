@@ -8,7 +8,7 @@ require 'active_record'
 require 'sinatra/cometio'
 require 'treetop'
 require 'airbrake'
-require 'backburner'
+require 'beaneater'
 
 set :server, ['thin'] # needed to avoid eventmachine error
 
@@ -91,25 +91,7 @@ set :port, 4002
 set :public_folder, 'public'
 set :haml, { :format => :html5, :escape_html => true, :ugly => true }
 
-Backburner.configure do |config|
-  config.beanstalk_url    = ['beanstalk://127.0.0.1']
-  config.tube_namespace   = 'backburner.worker.queue.student-checklist'
-  config.on_error         = lambda { |e| puts e }
-  #config.max_job_retries  = 3 # default 0 retries
-  #config.retry_delay      = 2 # default 5 seconds
-  config.default_priority = 65536
-  config.respond_timeout  = 120
-  config.default_worker   = Backburner::Workers::Simple
-  config.logger           = Logger.new(STDOUT)
-end
-
-class RerunTestsJob
-  include Backburner::Queue
-  queue_priority 10000 # most urgent priority is 0
-
-  def self.perform(initials, task_id)
-  end
-end
+beanstalk = Beaneater::Pool.new('127.0.0.1:11300')
 
 def authenticated?
   user_id = session[:google_plus_user_id]
@@ -477,8 +459,13 @@ post '/github_post_receive_web_hook' do
     end
   end
 
+  tube = beanstalk.tubes['student-checklist-tests-to-run']
   initials_to_exercise_nums.each do |initials, exercise_nums|
-    Backburner.enqueue RerunTestsJob, initials, exercise_nums.keys.sort
+    params = {
+      "initials" => initials,
+      "exercise_nums" => exercise_nums.keys.sort,
+    }
+    tube.put JSON.dump(params), :pri => 10000
   end
 
   "OK\n"
