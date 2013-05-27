@@ -443,7 +443,7 @@ end
 
 post '/github_post_receive_web_hook' do
   initials_to_exercise_nums = {}
-  json = JSON.load(request.body.read)
+  json = JSON.load(params['payload'])
   json['commits'].each do |commit|
     author = User.find_by_github_username(commit['author']['username'])
     if author
