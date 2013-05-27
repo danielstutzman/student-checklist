@@ -2,6 +2,8 @@ require 'beaneater'
 require 'json'
 require 'daemons'
 
+CurrentProcess.change_privilege("deployer")
+
 options = {
   :dir_mode   => :script,
   :dir        => "tmp/pids",
