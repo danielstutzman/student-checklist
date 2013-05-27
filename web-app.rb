@@ -416,18 +416,20 @@ post '/users' do
   User.transaction do
     User.order('id').each do |user|
       fields.each do |field|
-        user[field] = params["#{field}_#{user.id}"]
+        value = params["#{field}_#{user.id}"]
+        value = nil if value == ''
+        user[field] = value
       end
-      user['google_plus_user_id'] = nil if user['google_plus_user_id'] == ''
       user.save!
     end
 
     if (params["first_name_"] || '') != ''
       user = User.new
       fields.each do |field|
-        user[field] = params["#{field}_"]
+        value = params["#{field}_"]
+        value = nil if value == ''
+        user[field] = value
       end
-      user['google_plus_user_id'] = nil if user['google_plus_user_id'] == ''
       user.save!
     end
   end
