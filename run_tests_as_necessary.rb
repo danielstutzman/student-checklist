@@ -2,8 +2,6 @@ require 'beaneater'
 require 'json'
 require 'daemons'
 
-CurrentProcess.change_privilege("deployer")
-
 options = {
   :dir_mode   => :script,
   :dir        => "tmp/pids",
@@ -11,6 +9,7 @@ options = {
   :log_output => true,
 }
 Daemons.run_proc('run_tests.rb', options) do
+  CurrentProcess.change_privilege "deployer"
   beanstalk = Beaneater::Pool.new('127.0.0.1:11300')
   beanstalk.jobs.register('student-checklist-tests-to-run') do |job|
     job_params = JSON.parse(job.body)
