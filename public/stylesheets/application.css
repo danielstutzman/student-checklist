@@ -22,6 +22,9 @@ a {
 .desc.comment {
   color: #aaa;
 }
+.desc.current {
+  background-color: #ffa;
+}
 .attempt {
   padding: 3px;
   width: 18px;

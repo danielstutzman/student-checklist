@@ -146,6 +146,12 @@
       $attempt.addClass(new_status);
       $attempt.attr('data-status', new_status);
     });
+    comet_io.on("move_highlight", function(params) {
+      $('.desc.current').removeClass('current');
+      var newCurrentDesc = $('.desc').eq(params['num_desc']);
+      newCurrentDesc.addClass('current');
+      newCurrentDesc.scrollintoview();
+    });
 
     $('.desc a').click(function(event) {
       var attempt = $(event.target).closest('.desc').find('.attempt');
@@ -171,6 +177,44 @@
       event.preventDefault();
       return false;
     });
+
+    if ($('html.is-user-admin').length) {
+      var numDescHighlighted = 0;
+      var SEND_HIGHLIGHT_MOVE_DELAY_MILLIS = 1000;
+      var sendHighlightMoveTimeoutID = null;
+      var sendHighlightMove = function(numDesc) {
+        $.post("/move_highlight", { num_desc: numDescHighlighted });
+      };
+      var changeNumDescHighlighted = function(delta) {
+        if (numDescHighlighted + delta >= 0) {
+          $('.desc.current').removeClass('current');
+          numDescHighlighted += delta;
+          var newCurrentDesc = $('.desc').eq(numDescHighlighted);
+          newCurrentDesc.addClass('current');
+          newCurrentDesc.scrollintoview({ duration: 0 }); // instant
+          window.clearTimeout(sendHighlightMoveTimeoutID);
+          sendHighlightMoveTimeoutID = window.setTimeout(
+            sendHighlightMove, SEND_HIGHLIGHT_MOVE_DELAY_MILLIS);
+        }
+      };
+      changeNumDescHighlighted(0); // highlight current .desc
+
+      var KEY_UP_KEY_CODE   = 38;
+      var KEY_DOWN_KEY_CODE = 40;
+      $(document).keydown(function(e){
+        if (e.keyCode == KEY_UP_KEY_CODE) {
+          changeNumDescHighlighted(-1);
+          event.preventDefault();
+          return false;
+        } else if (e.keyCode == KEY_DOWN_KEY_CODE) {
+          changeNumDescHighlighted(1);
+          event.preventDefault();
+          return false;
+        } else {
+          return true;
+        }
+      });
+    }
 
     } // end if attempts_json defined
   }); // end document.ready

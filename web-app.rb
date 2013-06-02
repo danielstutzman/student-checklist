@@ -516,6 +516,15 @@ get '/search' do
   haml :search_results
 end
 
+post "/move_highlight" do
+  if @current_user.is_admin
+    CometIO.push :move_highlight, :num_desc => params["num_desc"].to_i
+    "OK\n"
+  else
+    "Must be admin\n"
+  end
+end
+
 after do
   ActiveRecord::Base.clear_active_connections!
 end
