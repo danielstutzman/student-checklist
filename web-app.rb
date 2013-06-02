@@ -90,6 +90,10 @@ class Exercise < ActiveRecord::Base
   belongs_to :outline
 end
 
+class HighlightMove < ActiveRecord::Base
+  belongs_to :outline
+end
+
 use Rack::Session::Cookie, {
   :key => 'rack.session',
   :secret => CONFIG['COOKIE_SIGNING_SECRET'],
@@ -223,6 +227,22 @@ def init_variables_for(outline, users, view_as_admin)
     @content.gsub!(
       /<div id='task-([A-Z][0-9]+)' class='margin-tasks'><\/div>/, '')
   end
+
+  @num_desc_to_time = {}
+  HighlightMove.where(:outline_id => outline.id).order('id desc').each do |move|
+    @num_desc_to_time[move.num_desc] = move.created_at
+  end
+  num_desc = 0
+  @content = @content.gsub(/(class='[^']*desc[^>]*>)/) do
+    original = $1
+    if timestamp = @num_desc_to_time[num_desc]
+      time = timestamp.strftime('%H:%M')
+      original += "<div class='highlight-time'>#{time}</div>"
+    end
+    num_desc += 1
+    original
+  end
+
   @attempts = attempts.map { |attempt|
     {
       'task_id'  => attempt.task_id,
@@ -230,9 +250,12 @@ def init_variables_for(outline, users, view_as_admin)
       'status'   => attempt.status,
     }
   }
+
   @all_initials = users.map { |user| user.initials }
 
   @margin = 20 + (users.size * 28)
+
+  nil
 end
 
 get '/' do
@@ -516,12 +539,19 @@ get '/search' do
   haml :search_results
 end
 
-post "/move_highlight" do
+post '/move_highlight' do
   if @current_user.is_admin
+    month   = params['path'].split('/')[1]
+    day     = params['path'].split('/')[2]
+    outline = Outline.where(:month => month, :day => day).first
+    move = HighlightMove.create({
+      :outline_id => outline.id,
+      :num_desc   => params['num_desc']
+    })
     CometIO.push :move_highlight,
-      :path     => params["path"],
-      :num_desc => params["num_desc"].to_i
-    "OK\n"
+      :path     => params['path'],
+      :num_desc => params['num_desc'].to_i
+    move.created_at.strftime('%H:%M')
   else
     "Must be admin\n"
   end

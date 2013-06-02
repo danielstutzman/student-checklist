@@ -186,11 +186,25 @@
       var numDescHighlighted = 0;
       var SEND_HIGHLIGHT_MOVE_DELAY_MILLIS = 1000;
       var sendHighlightMoveTimeoutID = null;
+      var getCurrentTimeHHMM = function() {
+        var date = new Date();
+        return ((date.getHours() < 10) ? "0" : "") + date.getHours() + ":" +
+               ((date.getMinutes() < 10) ? "0" : "") + date.getMinutes();
+      };
       var sendHighlightMove = function(numDesc) {
-        $.post("/move_highlight", {
-          num_desc: numDescHighlighted,
-          path: window.location.pathname.split('?')[0]
-        });
+        $.post("/move_highlight",
+          {
+            num_desc: numDescHighlighted,
+            path: window.location.pathname.split('?')[0],
+          },
+          function(responseText) {
+            var newCurrentDesc = $('.desc').eq(numDescHighlighted);
+            if (newCurrentDesc.children(".highlight-time").length == 0) {
+              newCurrentDesc.prepend(
+                "<div class='highlight-time'>" + responseText + "</div>");
+            }
+          }
+        );
       };
       var changeNumDescHighlighted = function(delta) {
         if (numDescHighlighted + delta >= 0) {
