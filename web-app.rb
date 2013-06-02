@@ -518,7 +518,9 @@ end
 
 post "/move_highlight" do
   if @current_user.is_admin
-    CometIO.push :move_highlight, :num_desc => params["num_desc"].to_i
+    CometIO.push :move_highlight,
+      :path     => params["path"],
+      :num_desc => params["num_desc"].to_i
     "OK\n"
   else
     "Must be admin\n"

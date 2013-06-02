@@ -147,10 +147,14 @@
       $attempt.attr('data-status', new_status);
     });
     comet_io.on("move_highlight", function(params) {
-      $('.desc.current').removeClass('current');
-      var newCurrentDesc = $('.desc').eq(params['num_desc']);
-      newCurrentDesc.addClass('current');
-      newCurrentDesc.scrollintoview();
+      // it only makes sense to follow along if the user
+      // is actually on the same page
+      if (params['path'] == window.location.pathname.split('?')[0]) {
+        $('.desc.current').removeClass('current');
+        var newCurrentDesc = $('.desc').eq(params['num_desc']);
+        newCurrentDesc.addClass('current');
+        newCurrentDesc.scrollintoview();
+      }
     });
 
     $('.desc a').click(function(event) {
@@ -183,7 +187,10 @@
       var SEND_HIGHLIGHT_MOVE_DELAY_MILLIS = 1000;
       var sendHighlightMoveTimeoutID = null;
       var sendHighlightMove = function(numDesc) {
-        $.post("/move_highlight", { num_desc: numDescHighlighted });
+        $.post("/move_highlight", {
+          num_desc: numDescHighlighted,
+          path: window.location.pathname.split('?')[0]
+        });
       };
       var changeNumDescHighlighted = function(delta) {
         if (numDescHighlighted + delta >= 0) {
