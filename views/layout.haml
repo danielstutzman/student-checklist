@@ -5,6 +5,17 @@
     %script(src="/javascripts/jquery-1.8.2.min.js")
     %script(src='/javascripts/application.js')
 
+    :javascript
+      var _prum = [['id', '516c9597abe53d7858000000'],
+                   ['mark', 'firstbyte', (new Date()).getTime()]];
+      (function() {
+          var s = document.getElementsByTagName('script')[0]
+            , p = document.createElement('script');
+          p.async = 'async';
+          p.src = '//rum-static.pingdom.net/prum.min.js';
+          s.parentNode.insertBefore(p, s);
+      })();
+
     %script{ :src => cometio_js }
     - if @attempts
       %script
