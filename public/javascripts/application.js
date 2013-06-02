@@ -151,9 +151,11 @@
       // is actually on the same page
       if (params['path'] == window.location.pathname.split('?')[0]) {
         $('.desc.current').removeClass('current');
-        var newCurrentDesc = $('.desc').eq(params['num_desc']);
-        newCurrentDesc.addClass('current');
-        newCurrentDesc.scrollintoview();
+        if (params['num_desc'] != -1) {
+          var newCurrentDesc = $('.desc').eq(params['num_desc']);
+          newCurrentDesc.addClass('current');
+          newCurrentDesc.scrollintoview();
+        }
       }
     });
 
@@ -198,21 +200,25 @@
             path: window.location.pathname.split('?')[0],
           },
           function(responseText) {
-            var newCurrentDesc = $('.desc').eq(numDescHighlighted);
-            if (newCurrentDesc.children(".highlight-time").length == 0) {
-              newCurrentDesc.prepend(
-                "<div class='highlight-time'>" + responseText + "</div>");
+            if (numDescHighlighted != -1) {
+              var newCurrentDesc = $('.desc').eq(numDescHighlighted);
+              if (newCurrentDesc.children(".highlight-time").length == 0) {
+                newCurrentDesc.prepend(
+                  "<div class='highlight-time'>" + responseText + "</div>");
+              }
             }
           }
         );
       };
       var changeNumDescHighlighted = function(delta) {
-        if (numDescHighlighted + delta >= 0) {
+        if (numDescHighlighted + delta >= -1) {
           $('.desc.current').removeClass('current');
           numDescHighlighted += delta;
-          var newCurrentDesc = $('.desc').eq(numDescHighlighted);
-          newCurrentDesc.addClass('current');
-          newCurrentDesc.scrollintoview({ duration: 0 }); // instant
+          if (numDescHighlighted != -1) {
+            var newCurrentDesc = $('.desc').eq(numDescHighlighted);
+            newCurrentDesc.addClass('current');
+            newCurrentDesc.scrollintoview({ duration: 0 }); // instant
+          }
           window.clearTimeout(sendHighlightMoveTimeoutID);
           sendHighlightMoveTimeoutID = window.setTimeout(
             sendHighlightMove, SEND_HIGHLIGHT_MOVE_DELAY_MILLIS);
