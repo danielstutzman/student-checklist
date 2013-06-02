@@ -184,7 +184,7 @@
 
     if ($('html.is-user-admin').length) {
       var numDescHighlighted = 0;
-      var SEND_HIGHLIGHT_MOVE_DELAY_MILLIS = 1000;
+      var SEND_HIGHLIGHT_MOVE_DELAY_MILLIS = 3000;
       var sendHighlightMoveTimeoutID = null;
       var getCurrentTimeHHMM = function() {
         var date = new Date();
