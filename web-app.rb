@@ -176,6 +176,7 @@ before do
     /mark_task_complete
     /cometio/io
     /github_post_receive_web_hook
+    /ping
   ].include?(request.path_info)
     pass
   elsif !authenticated?
@@ -489,6 +490,11 @@ get '/attendance' do
   @students = User.where(:is_student => true).order('id')
   @outlines = Outline.order("date")
   haml :attendance
+end
+
+get '/ping' do
+  User.first
+  "OK\n"
 end
 
 after do
