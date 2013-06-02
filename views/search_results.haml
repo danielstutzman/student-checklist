@@ -1,0 +1,12 @@
+- @outlines.each do |outline|
+  %h2
+    %a{ :href => "/#{outline.month}/#{outline.day}" }
+      !=h(outline.first_line).gsub(params["query"],             |
+        "<span class='found'>#{params["query"]}</span>").gsub(  |
+        /`(.*?)`/, "<code>\\1</code>")                          |
+  %ul
+    - outline.text.split("\n").each do |line|
+      - if line.include?(params["query"])
+        %li!= h(line).gsub(params["query"],                       |
+          "<span class='found'>#{params["query"]}</span>").gsub(  |
+          /`(.*?)`/, "<code>\\1</code>")                          |

@@ -9,6 +9,7 @@ require 'sinatra/cometio'
 require 'treetop'
 require 'airbrake'
 require 'beaneater'
+require 'pg_search'
 
 set :server, ['thin'] # needed to avoid eventmachine error
 
@@ -63,6 +64,19 @@ end
 class Attempt < ActiveRecord::Base
   attr :student_initials, true
   belongs_to :user
+end
+
+if env == 'development'
+  class Outline < ActiveRecord::Base
+    def self.search_by_text(query)
+      (query != '') ? self.where("text like ?", "%#{query}%") : []
+    end
+  end
+else
+  class Outline < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :search_by_text, :against => :text
+  end
 end
 
 class Outline < ActiveRecord::Base
@@ -495,6 +509,11 @@ end
 get '/ping' do
   User.first
   "OK\n"
+end
+
+get '/search' do
+  @outlines = Outline.search_by_text(params['query'])
+  haml :search_results
 end
 
 after do

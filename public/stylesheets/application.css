@@ -107,3 +107,6 @@ a {
 .more {
   display:none;
 }
+.found {
+  background-color: yellow;
+}
