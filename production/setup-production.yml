@@ -50,6 +50,9 @@
   - command: sh -c "if [ -e tmp/pids/thin.pid ]; then cat tmp/pids/thin.pid | xargs kill; rm tmp/pids/thin.pid; fi" chdir=/home/deployer/student-checklist
   - command: "bundle exec thin start -p 3003 -e production -d chdir=/home/deployer/student-checklist"
 
+  - copy: src=dot-pgpass dest=/home/deployer/.pgpass
+  - command: chmod 0600 /home/deployer/.pgpass
+
 - hosts: web
   user: root
   tasks:
