@@ -19,6 +19,7 @@
   - apt: "pkg=libpq-dev"
   - apt: "pkg=libsqlite3-dev"
   - apt: "pkg=nodejs" # for coffeescript
+  - apt: "pkg=beanstalkd"
 
   - command: mkdir /var/lib/postgresql/.ssh creates=/var/lib/postgresql/.ssh
   - command: chown postgres:postgres /var/lib/postgresql/.ssh
@@ -28,6 +29,8 @@
 
   - command: gem install bundler creates=/usr/local/bin/bundle
 
+  - copy: src=beanstalkd dest=/etc/default/beanstalkd
+  - command: service beanstalkd start
 
 - hosts: web
   user: postgres
