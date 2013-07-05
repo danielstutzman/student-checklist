@@ -5,6 +5,13 @@ AIRBRAKE_API_KEY: '12312312312312312312312312312312'
 HOSTNAME_FOR_ONLINE_RUBY_TUTOR:
   development: 'localhost:4001'
   production: 'www.onlinerubytutor.com'
+SMTP:
+  FROM: 'dtstutz@gmail.com'
+  TO: 'dtstutz@gmail.com'
+  HOST: 'smtp.sendgrid.net'
+  PORT: '587'
+  USERNAME: 'fillthisin'
+  PASSWORD: 'fillthisin'
 DATABASE_PARAMS:
   development:
     adapter: sqlite3

@@ -10,6 +10,7 @@ require 'treetop'
 require 'airbrake'
 require 'beaneater'
 require 'pg_search'
+require 'pony'
 
 set :server, ['thin'] # needed to avoid eventmachine error
 
@@ -57,6 +58,19 @@ end
 
 ONLINE_RUBY_TUTOR = CONFIG['HOSTNAME_FOR_ONLINE_RUBY_TUTOR'][env]
 
+Pony.options = {
+  from: CONFIG["SMTP"]["FROM"],
+  via: :smtp,
+  via_options: {
+    address:              CONFIG["SMTP"]["HOST"],
+    port:                 CONFIG["SMTP"]["PORT"],
+    user_name:            CONFIG["SMTP"]["USERNAME"],
+    password:             CONFIG["SMTP"]["PASSWORD"],
+    authentication:       "plain",
+    enable_starttls_auto: true,
+  },
+}
+
 class User < ActiveRecord::Base
   has_many :attempts
 end
@@ -101,7 +115,8 @@ use Rack::Session::Cookie, {
 
 use OmniAuth::Builder do
   provider :google_oauth2, CONFIG['GOOGLE_KEY'], CONFIG['GOOGLE_SECRET'], {
-    :scope => 'https://www.googleapis.com/auth/plus.me',
+    :scope => %w[https://www.googleapis.com/auth/userinfo.profile
+                 https://www.googleapis.com/auth/userinfo.email].join(' '),
     :access_type => 'online',
   }
 end
@@ -299,13 +314,27 @@ end
 #  "extra"=>{"raw_info"=>{"id"=>"112826277336975923063"}}}
 #
 get '/auth/google_oauth2/callback' do
-  response = request.env['omniauth.auth']
-  uid = response['uid']
-  session[:google_plus_user_id] = uid
+  auth = request.env['omniauth.auth']
+  session[:google_plus_user_id] = auth[:uid]
   if authenticated?
     redirect "/"
   else
-    redirect "/auth/failure?message=Sorry,+you're+not+on+the+list.+Contact+dtstutz@gmail.com+to+be+added."
+    Pony.mail(
+      to:      CONFIG["SMTP"]["TO"],
+      subject: "Access to checklist app",
+      body:    "Someone has attempted to login to the checklist app:
+
+Name: #{auth[:info][:name]}
+
+Email: #{auth[:info][:email]}
+
+Google+ UID: #{auth[:uid]}
+
+Google+ link: #{auth[:extra][:raw_info][:link]}
+
+Add new users at http://www.davincicoders.info/users"
+    )
+    redirect "/auth/failure?message=Sorry, you're not on the list yet, but an email has been sent on your behalf to get you added.".gsub(" ", "+")
   end
 end
 
