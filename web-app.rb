@@ -184,8 +184,7 @@ def read_title_content_and_task_ids(outline)
     line = backticks_to_html(line)
 
     if !%w[C D].include?(task_id[0]) && (additional || '') != ''
-      line += " <a class='show-more' href='#'>(show)</a><div class='more'>" +
-        additional.split("\n").join("<br>\n") + "</div>"
+      line += "<pre>" + additional.split("\n").join("<br>") + "</pre>"
     end
 
     comment_class = (line.start_with?('#')) ? 'comment' : ''
