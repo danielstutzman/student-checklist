@@ -1,102 +1,17 @@
 %h1 DaVinci Coders 2013 Q2 Rails 1
-%ul
-  - @outlines.each do |outline|
-    %li
-      %a{:href => "/#{outline.month}/#{outline.day}"}
-        != outline.first_line_html
 
-%hr
-%h2 Schedule (tentative)
-
-%h3 WEEK 1: Basic tools
-%ul
-  %li Terminal: cd, pwd in PS1, ~, ls, exit, Ctrl-R, up-arrow
-  %li Text editor
-  %li Git: clone, GitX(L) (add, commit, diff, push, pull, checkout, status)
-  %li= "HTML: <h1>, <p>, <hr>, <a>"
-  %li= "HTML forms: <form>, <input>, <textarea>, <select>, <option>"
-  %li= "CSS: class attribute, <div>, border, padding, font-size"
-  %li CSS layout: width, height, position:absolute, top, left
-
-%h3 WEEK 2: Ruby
-%ul
-  %li Shell commands: ruby, pry, bundle
-  %li objects, methods, arguments, expressions
-  %li Types and literals: Strings, Fixnums
-  %li input and output
-  %li variables
-  %li string interpolation
-  %li \n and \\
-  %li if, else
-  %li debugging with pry: next, ls, ls object
-  %li blocks, each
-
-%h3 WEEK 3: Ruby 2
-%ul
-  %li arrays: literals, [], +, first, last, size, reverse, sort, uniq
-  %li ARGV
-  %li nil and NoMethodError
-  %li CSV files, File.read, String#split
-  %li symbols: literals, to_s, String#to_sym
-  %li hashes: literals, [], keys, values
-
-%h3 WEEK 4: Active Record
-%ul
-  %li psql, \q, \d, \i, select, from
-  %li models
-  %li Active Record queries, order, where, LIKE, first
-  %li getters/setters
-  %li save, save!
-  %li SQL injection
-
-%h3 WEEK 5: Active Record 2
-%ul
-  %li new and destroy
-  %li validations: validates_presence_of, validates_uniqueness_of
-  %li relationships: has_many, belongs_to, has_and_belongs_to_many
-
-%h3 WEEK 6: Sinatra
-%ul
-  %li stop and stop web server in separate tab
-  %li routes, handlers
-  %li 200, 404, 500
-  %li parts of a URL
-  %li ERb <%, <%=, views directory, render
-  %li instance variables
-  %li GET params in URL, params in Sinatra
-  %li URL encoding
-  %li external CSS file, public directory for CSS and images, absolute URL links/images
-  %li layout
-
-%h3 WEEK 7: Sinatra 2
-%ul
-  %li POST
-  %li displaying validation errors
-  %li redirect vs. render
-  %li named params
-
-%h3 WEEK 8: User authentication / security
-%ul
-  %li sessions, cookies, digital signing
-  %li flash
-  %li before_filter/before
-  %li validates_confirmation_of
-  %li has_secure_password
-  %li send email
-  %li keep passwords out of version control
-
-%h3 WEEK 9: Rails
-%ul
-  %li MVC diagram, routes.rb, controllers, views
-  %li layouts again
-  %li partials
-  %li migrations
-
-%h3 WEEK 10: Rails scaffolding
-%ul
-  %li named routes
-  %li REST, polymorphic routing
-  %li form_for, update_attributes
-
-%h3 WEEK 11: help with projects
-
+%table.weeks
+  - @weeks.each do |week|
+    - outlines = @outlines.select { |outline| (week.begin_date..week.end_date).include?(outline.date) }
+    - outlines.each_with_index do |outline, i|
+      %tr{ class: (i == outlines.size - 1) ? 'last-day' : '' }
+        - if i == 0
+          %td(nowrap='nowrap'){ rowspan: outlines.size }
+            .week-label= week.label
+        %td= outline.date.strftime('%a')
+        %td(nowrap='nowrap')
+          = outline.date.strftime('%b')
+          = outline.date.strftime('%d')
+        %td
+          %a{href: "/#{outline.month}/#{outline.day}"}
+            != outline.first_line.split(':').last.gsub(/`([^`]*)`/, "<code>\\1</code>")

@@ -1,0 +1,29 @@
+%h1 Weeks
+%form(method='post' action='/weeks')
+  %table(border='1')
+    %tr
+      %th begin_date
+      %th end_date
+      %th label
+      %th summary
+      %th details
+    - (@weeks + [Week.new]).each do |week|
+      %tr
+        %td
+          %input{type: 'text', name: "begin_date_#{week.id}",
+            :value => week.begin_date && week.begin_date.strftime('%Y-%m-%d') }
+        %td
+          %input{type: 'text', name: "end_date_#{week.id}",
+            :value => week.end_date && week.end_date.strftime('%Y-%m-%d') }
+        %td
+          %input{type: 'text', name: "label_#{week.id}",
+            :value => week.label }
+        %td
+          %input{type: 'text', name: "summary_#{week.id}",
+            :value => week.summary }
+        %td
+          %input{type: 'text', name: "details_#{week.id}",
+            :value => week.details }
+  %p
+    %button Update
+  

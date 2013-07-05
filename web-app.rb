@@ -108,6 +108,12 @@ class HighlightMove < ActiveRecord::Base
   belongs_to :outline
 end
 
+class Week < ActiveRecord::Base
+  validates_presence_of :begin_date
+  validates_presence_of :end_date
+  validates_presence_of :label
+end
+
 use Rack::Session::Cookie, {
   :key => 'rack.session',
   :secret => CONFIG['COOKIE_SIGNING_SECRET'],
@@ -273,8 +279,8 @@ def init_variables_for(outline, users, view_as_admin)
 end
 
 get '/' do
-  @outlines =
-    Outline.select('id, date, month, day, first_line').order('date desc')
+  @weeks = Week.order('begin_date')
+  @outlines = Outline.select('id, date, month, day, first_line').order('date')
   haml :outlines
 end
 
@@ -496,6 +502,42 @@ post '/move_highlight' do
   else
     "Must be admin\n"
   end
+end
+
+get '/weeks' do
+  @weeks = Week.order("begin_date")
+  haml :weeks
+end
+
+post '/weeks' do
+  if !@current_user.is_admin
+    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+weeks'
+  end
+
+  fields = %w[begin_date end_date label summary details]
+
+  Week.transaction do
+    Week.order('id').each do |week|
+      fields.each do |field|
+        value = params["#{field}_#{week.id}"]
+        value = nil if value == ''
+        week[field] = value
+      end
+      week.save!
+    end
+
+    if (params["begin_date_"] || '') != ''
+      week = Week.new
+      fields.each do |field|
+        value = params["#{field}_"]
+        value = nil if value == ''
+        week[field] = value
+      end
+      week.save!
+    end
+  end
+
+  redirect '/weeks'
 end
 
 get '/:month/:day' do |month, day|

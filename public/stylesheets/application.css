@@ -118,3 +118,16 @@ a {
 .found {
   background-color: yellow;
 }
+
+table.weeks td, th {
+  padding: 1px 5px;
+  vertical-align: top;
+  font-family: 'Quicksand', sans-serif;
+}
+table.weeks .week-label {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+table.weeks tr.last-day > td {
+  padding-bottom: 15px;
+}
