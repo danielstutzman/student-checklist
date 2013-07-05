@@ -264,93 +264,6 @@ get '/' do
   haml :outlines
 end
 
-get '/:month/:day' do |month, day|
-  @outline = Outline.where(:month => month, :day => day).first
-  not_found 'No outline found for that day.' if @outline.nil?
-  if @current_user.is_admin && params['as_student'] != 'true'
-    students = User.where(:is_student => true).order('seating_order, id')
-    init_variables_for(@outline, students, true)
-    haml :tasks_for_all
-  else
-    init_variables_for(@outline, [@current_user], false)
-    haml :tasks_for_one
-  end
-end
-
-get '/:month/:day/edit' do |month, day|
-  if !@current_user.is_admin
-    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+pages'
-  end
-  @outline = Outline.where(:month => month, :day => day).first || Outline.new
-  haml :edit_page
-end
-
-post '/:month/:day/edit' do |month, day|
-  if !@current_user.is_admin
-    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+pages'
-  end
-  unless %w[jan feb mar apr may jun jul aug sep oct nov dec].include?(month)
-    halt "Bad month"
-  end
-  halt "Bad day, should be 2 characters" if day.size != 2
-
-  text = params['text'].gsub("\r\n", "\n")
-  parser = WorkflowyParser.new
-  tree = parser.parse(text)
-  if tree.nil?
-    raise Exception, "Parse error at offset: #{parser.index}"
-  end
-
-  @outline = Outline.where(:month => month, :day => day).first
-
-  all_task_ids = {}
-  tree.lines.each do |triple|
-    depth, task_id, line, additional = triple
-    next if task_id == ''
-
-    if all_task_ids[task_id]
-      raise "Task_id #{task_id} mentioned twice in page"
-    else
-      all_task_ids[task_id] = true
-    end
-
-    exercise = Exercise.find_by_task_id(task_id) ||
-               Exercise.new(:task_id => task_id)
-    if exercise.outline_id && @outline && exercise.outline_id != @outline.id
-      raise "Task #{task_id} already belongs to outline #{exercise.outline_id}"
-    end
-
-    if %w[C D].include?(task_id[0]) # challenge or demonstration
-      description_yaml = YAML.dump({ 'description' => line })
-      YAML.load(additional) # make sure it parses
-      exercise.yaml = description_yaml + "\n" + additional
-    end
-    exercise.save!
-  end
-
-  if @outline.nil?
-    @outline = Outline.new({
-      :month => month,
-      :day   => day,
-      :year  => '2013',
-      :date  => "2013-#{month}-#{day}",
-    })
-  end
-  @outline.text = text
-  @outline.first_line = text.split("\n").first
-  @outline.save!
-
-  tree.lines.each do |triple|
-    depth, task_id, line, additional = triple
-    next if task_id == ''
-    exercise = Exercise.find_by_task_id(task_id)
-    exercise.outline_id = @outline.id
-    exercise.save!
-  end
-
-  redirect "/#{month}/#{day}"
-end
-
 get '/login' do
   haml :login
 end
@@ -555,6 +468,93 @@ post '/move_highlight' do
   else
     "Must be admin\n"
   end
+end
+
+get '/:month/:day' do |month, day|
+  @outline = Outline.where(:month => month, :day => day).first
+  not_found 'No outline found for that day.' if @outline.nil?
+  if false && @current_user.is_admin && params['as_student'] != 'true'
+    students = User.where(:is_student => true).order('seating_order, id')
+    init_variables_for(@outline, students, true)
+    haml :tasks_for_all
+  else
+    init_variables_for(@outline, [@current_user], false)
+    haml :tasks_for_one
+  end
+end
+
+get '/:month/:day/edit' do |month, day|
+  if !@current_user.is_admin
+    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+pages'
+  end
+  @outline = Outline.where(:month => month, :day => day).first || Outline.new
+  haml :edit_page
+end
+
+post '/:month/:day/edit' do |month, day|
+  if !@current_user.is_admin
+    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+pages'
+  end
+  unless %w[jan feb mar apr may jun jul aug sep oct nov dec].include?(month)
+    halt "Bad month"
+  end
+  halt "Bad day, should be 2 characters" if day.size != 2
+
+  text = params['text'].gsub("\r\n", "\n")
+  parser = WorkflowyParser.new
+  tree = parser.parse(text)
+  if tree.nil?
+    raise Exception, "Parse error at offset: #{parser.index}"
+  end
+
+  @outline = Outline.where(:month => month, :day => day).first
+
+  all_task_ids = {}
+  tree.lines.each do |triple|
+    depth, task_id, line, additional = triple
+    next if task_id == ''
+
+    if all_task_ids[task_id]
+      raise "Task_id #{task_id} mentioned twice in page"
+    else
+      all_task_ids[task_id] = true
+    end
+
+    exercise = Exercise.find_by_task_id(task_id) ||
+               Exercise.new(:task_id => task_id)
+    if exercise.outline_id && @outline && exercise.outline_id != @outline.id
+      raise "Task #{task_id} already belongs to outline #{exercise.outline_id}"
+    end
+
+    if %w[C D].include?(task_id[0]) # challenge or demonstration
+      description_yaml = YAML.dump({ 'description' => line })
+      YAML.load(additional) # make sure it parses
+      exercise.yaml = description_yaml + "\n" + additional
+    end
+    exercise.save!
+  end
+
+  if @outline.nil?
+    @outline = Outline.new({
+      :month => month,
+      :day   => day,
+      :year  => '2013',
+      :date  => "2013-#{month}-#{day}",
+    })
+  end
+  @outline.text = text
+  @outline.first_line = text.split("\n").first
+  @outline.save!
+
+  tree.lines.each do |triple|
+    depth, task_id, line, additional = triple
+    next if task_id == ''
+    exercise = Exercise.find_by_task_id(task_id)
+    exercise.outline_id = @outline.id
+    exercise.save!
+  end
+
+  redirect "/#{month}/#{day}"
 end
 
 after do
