@@ -73,6 +73,7 @@ Pony.options = {
 
 class User < ActiveRecord::Base
   has_many :attempts
+  self.primary_key = 'id'
 end
 
 class Attempt < ActiveRecord::Base
