@@ -13,5 +13,9 @@
           = outline.date.strftime('%b')
           = outline.date.strftime('%d')
         %td
+          - if outline.handout_url
+            %a{ href: outline.handout_url }
+              %img(src='/images/gray-document.png' width='16' height='16')
+        %td
           %a{href: "/#{outline.month}/#{outline.day}"}
             != outline.first_line.split(':').last.gsub(/`([^`]*)`/, "<code>\\1</code>")

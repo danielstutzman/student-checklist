@@ -95,6 +95,7 @@ else
 end
 
 class Outline < ActiveRecord::Base
+  self.primary_key = 'id'
   has_many :exercises
   def first_line_html
     backticks_to_html(h(self.first_line))
@@ -102,6 +103,7 @@ class Outline < ActiveRecord::Base
 end
 
 class Exercise < ActiveRecord::Base
+  self.primary_key = 'id'
   belongs_to :outline
 end
 
@@ -281,7 +283,8 @@ end
 
 get '/' do
   @weeks = Week.order('begin_date')
-  @outlines = Outline.select('id, date, month, day, first_line').order('date')
+  @outlines = Outline.select(
+    'id, date, month, day, first_line, handout_url').order('date')
   haml :outlines
 end
 
@@ -615,6 +618,7 @@ post '/:month/:day/edit' do |month, day|
   end
   @outline.text = text
   @outline.first_line = text.split("\n").first
+  @outline.handout_url = params['handout_url']
   @outline.save!
 
   tree.lines.each do |triple|
