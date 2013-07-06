@@ -2,20 +2,37 @@
 
 %table.weeks
   - @weeks.each do |week|
-    - outlines = @outlines.select { |outline| (week.begin_date..week.end_date).include?(outline.date) }
-    - outlines.each_with_index do |outline, i|
-      %tr{ class: (i == outlines.size - 1) ? 'last-day' : '' }
+    - dateds = (@outlines + @events).select { |dated| (week.begin_date..week.end_date).include?(dated.date) }.sort_by { |dated| [dated.date, dated.respond_to?(:hour) ? dated.hour : 0] }
+    - dateds.each_with_index do |dated, i|
+      - classes = []
+      - classes.push 'last-day' if (i == dateds.size - 1)
+      - classes.push 'event' if Event === dated
+      %tr{ class: classes.join(' ') }
         - if i == 0
-          %td(nowrap='nowrap'){ rowspan: outlines.size }
+          %td(nowrap='nowrap'){ rowspan: dateds.size }
             .week-label= week.label
-        %td= outline.date.strftime('%a')
+        %td= dated.date.strftime('%a')
         %td(nowrap='nowrap')
-          = outline.date.strftime('%b')
-          = outline.date.strftime('%d')
-        %td
-          - if outline.handout_url
-            %a{ href: outline.handout_url }
-              %img(src='/images/gray-document.png' width='16' height='16')
-        %td
-          %a{href: "/#{outline.month}/#{outline.day}"}
-            != outline.first_line.split(':').last.gsub(/`([^`]*)`/, "<code>\\1</code>")
+          = dated.date.strftime('%b')
+          = dated.date.strftime('%d')
+        - if Outline === dated
+          - outline = dated
+          %td
+            - if outline.handout_url
+              %a{ href: outline.handout_url }
+                %img(src='/images/gray-document.png' width='16' height='16')
+          %td
+            %a{href: "/#{outline.month}/#{outline.day}"}
+              != outline.first_line.split(':').last.gsub(/`([^`]*)`/, "<code>\\1</code>")
+        - elsif Event === dated
+          - event = dated
+
+          -# skip one column for the outline's image link
+          %td
+
+          - if event.more_info_url
+            %td
+              %a{ href: event.more_info_url }= event.details
+          - else
+            %td= event.details
+

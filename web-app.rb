@@ -117,6 +117,11 @@ class Week < ActiveRecord::Base
   validates_presence_of :label
 end
 
+class Event < ActiveRecord::Base
+  validates_presence_of :date
+  validates_presence_of :details
+end
+
 use Rack::Session::Cookie, {
   :key => 'rack.session',
   :secret => CONFIG['COOKIE_SIGNING_SECRET'],
@@ -285,6 +290,7 @@ get '/' do
   @weeks = Week.order('begin_date')
   @outlines = Outline.select(
     'id, date, month, day, first_line, handout_url').order('date')
+  @events = Event.order("date, hour")
   haml :outlines
 end
 
@@ -509,6 +515,10 @@ post '/move_highlight' do
 end
 
 get '/weeks' do
+  if !@current_user.is_admin
+    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+weeks'
+  end
+
   @weeks = Week.order("begin_date")
   haml :weeks
 end
@@ -543,6 +553,47 @@ post '/weeks' do
 
   redirect '/weeks'
 end
+
+get '/events' do
+  if !@current_user.is_admin
+    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+events'
+  end
+
+  @events = Event.order("date")
+  haml :events
+end
+
+post '/events' do
+  if !@current_user.is_admin
+    redirect '/auth/failure?message=You+must+be+an+admin+to+edit+events'
+  end
+
+  fields = %w[date hour details more_info_url]
+
+  Event.transaction do
+    Event.order('id').each do |event|
+      fields.each do |field|
+        value = params["#{field}_#{event.id}"]
+        value = nil if value == ''
+        event[field] = value
+      end
+      event.save!
+    end
+
+    if (params["date_"] || '') != ''
+      event = Event.new
+      fields.each do |field|
+        value = params["#{field}_"]
+        value = nil if value == ''
+        event[field] = value
+      end
+      event.save!
+    end
+  end
+
+  redirect '/events'
+end
+
 
 get '/:month/:day' do |month, day|
   @outline = Outline.where(:month => month, :day => day).first

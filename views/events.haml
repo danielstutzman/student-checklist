@@ -1,0 +1,25 @@
+%h1 Events
+%form(method='post' action='/events')
+  %table(border='1')
+    %tr
+      %th date
+      %th hour
+      %th details
+      %th more_info_url
+    - (@events + [Event.new]).each do |event|
+      %tr
+        %td
+          %input{type: 'text', name: "date_#{event.id}",
+            :value => event.date && event.date.strftime('%Y-%m-%d') }
+        %td
+          %input{type: 'text', name: "hour_#{event.id}",
+            :value => event.hour }
+        %td
+          %input{type: 'text', name: "details_#{event.id}",
+            :value => event.details }
+        %td
+          %input{type: 'text', name: "more_info_url_#{event.id}",
+            :value => event.more_info_url }
+  %p
+    %button Update
+  
