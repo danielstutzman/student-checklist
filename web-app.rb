@@ -115,6 +115,7 @@ class Week < ActiveRecord::Base
   validates_presence_of :begin_date
   validates_presence_of :end_date
   validates_presence_of :label
+  def date; nil; end # so it can show in outlines view
 end
 
 class Event < ActiveRecord::Base

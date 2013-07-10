@@ -3,6 +3,8 @@
 %table.weeks
   - @weeks.each do |week|
     - dateds = (@outlines + @events).select { |dated| (week.begin_date..week.end_date).include?(dated.date) }.sort_by { |dated| [dated.date, dated.respond_to?(:hour) ? dated.hour : 0] }
+    - if dateds.select { |dated| Outline == dated }.size == 0
+      - dateds.push week
     - dateds.each_with_index do |dated, i|
       - classes = []
       - classes.push 'last-day' if (i == dateds.size - 1)
@@ -11,10 +13,11 @@
         - if i == 0
           %td(nowrap='nowrap'){ rowspan: dateds.size }
             .week-label= week.label
-        %td= dated.date.strftime('%a')
+            .week-label= week.summary
+        %td= dated.date && dated.date.strftime('%a')
         %td(nowrap='nowrap')
-          = dated.date.strftime('%b')
-          = dated.date.strftime('%d')
+          = dated.date && dated.date.strftime('%b')
+          = dated.date && dated.date.strftime('%d')
         - if Outline === dated
           - outline = dated
           %td
@@ -35,4 +38,9 @@
               %a{ href: event.more_info_url }= event.details
           - else
             %td= event.details
+        - elsif Week === dated
+          -# skip one column for the outline's image link
+          %td
+
+          %td= dated.details
 
