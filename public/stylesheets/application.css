@@ -50,6 +50,9 @@ a {
 .attempt.question {
   background-image: url('/images/red-question.png');
 }
+.attempt.skipped {
+  background: url('/images/gray-n-a.png');
+}
 .attempt.locked {
   background: url('/images/gray-locked-checkbox.png');
 }
@@ -84,7 +87,7 @@ a {
   margin-bottom: 20px;
 }
 #attempt-dropdown {
-  width:150px;
+  width:165px;
   border:1px #aaa solid;
   box-shadow: 0px 5px 15px #aaa;
   padding:10px;

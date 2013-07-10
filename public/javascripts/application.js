@@ -47,6 +47,7 @@
       unstarted:  '(not started)',
       incomplete: '(in progress)',
       question:   '(stuck on something)',
+      skipped:    '(not relevant)',
       complete:   '(done)',
       locked:     '(must complete externally)'
     };
