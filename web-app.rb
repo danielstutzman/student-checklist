@@ -598,7 +598,7 @@ end
 get '/:month/:day' do |month, day|
   @outline = Outline.where(:month => month, :day => day).first
   not_found 'No outline found for that day.' if @outline.nil?
-  if false && @current_user.is_admin && params['as_student'] != 'true'
+  if @current_user.is_admin && params['as_student'] != 'true'
     students = User.where(:is_student => true).order('seating_order, id')
     init_variables_for(@outline, students, true)
     haml :tasks_for_all
