@@ -2,6 +2,7 @@
 
 %table.weeks
   - @weeks.each do |week|
+    - last_date = nil
     - dateds = (@outlines + @events).select { |dated| (week.begin_date..week.end_date).include?(dated.date) }.sort_by { |dated| [dated.date, dated.respond_to?(:category) ? dated.category : 'later', dated.respond_to?(:hour) ? dated.hour : 0] }
     - if dateds.select { |dated| Outline == dated }.size == 0
       - dateds.push week
@@ -14,10 +15,13 @@
           %td(nowrap='nowrap'){ rowspan: dateds.size }
             .week-label= week.label
             .week-label= week.summary
-        %td= dated.date && dated.date.strftime('%a')
+        %td
+          - if dated.date != last_date
+            = dated.date && dated.date.strftime('%a')
         %td(nowrap='nowrap')
-          = dated.date && dated.date.strftime('%b')
-          = dated.date && dated.date.strftime('%d')
+          - if dated.date != last_date
+            = dated.date && dated.date.strftime('%b')
+            = dated.date && dated.date.strftime('%d')
         - if Outline === dated
           - outline = dated
           %td
@@ -44,3 +48,4 @@
 
           %td= dated.details
 
+      - last_date = dated.date
