@@ -2,7 +2,7 @@
 
 %table.weeks
   - @weeks.each do |week|
-    - dateds = (@outlines + @events).select { |dated| (week.begin_date..week.end_date).include?(dated.date) }.sort_by { |dated| [dated.date, dated.respond_to?(:hour) ? dated.hour : 0] }
+    - dateds = (@outlines + @events).select { |dated| (week.begin_date..week.end_date).include?(dated.date) }.sort_by { |dated| [dated.date, dated.respond_to?(:category) ? dated.category : 'later', dated.respond_to?(:hour) ? dated.hour : 0] }
     - if dateds.select { |dated| Outline == dated }.size == 0
       - dateds.push week
     - dateds.each_with_index do |dated, i|
@@ -25,8 +25,8 @@
               %a{ href: outline.handout_url }
                 %img(src='/images/gray-document.png' width='16' height='16')
           %td
-            %a{href: "/#{outline.month}/#{outline.day}"}
-              != outline.first_line.split(':').last.gsub(/`([^`]*)`/, "<code>\\1</code>")
+            %a{href: "/#{outline.month}/#{outline.day}/#{outline.category}"}
+              != outline.first_line.gsub(/^[^:]*: /, '').gsub(/`([^`]*)`/, "<code>\\1</code>")
         - elsif Event === dated
           - event = dated
 

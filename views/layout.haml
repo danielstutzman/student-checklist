@@ -37,7 +37,7 @@
         %form(method='post' action='/logout' style='display:inline-block')
           %button Logout
           - if @outline
-            %a{:href => "/#{@outline.month}/#{@outline.day}/edit"} Edit
+            %a{:href => "/#{@outline.month}/#{@outline.day}/#{@outline.category}/edit"} Edit
         %form(method='get' action='/search' style='display:inline-block')
           %input(type='text' name='query' placeholder='Search')
 

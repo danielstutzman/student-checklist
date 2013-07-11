@@ -290,7 +290,7 @@ end
 get '/' do
   @weeks = Week.order('begin_date')
   @outlines = Outline.select(
-    'id, date, month, day, first_line, handout_url').order('date')
+    'id, date, month, day, category, first_line, handout_url').order('date')
   @events = Event.order("date, hour")
   haml :outlines
 end
@@ -596,8 +596,9 @@ post '/events' do
 end
 
 
-get '/:month/:day' do |month, day|
-  @outline = Outline.where(:month => month, :day => day).first
+get '/:month/:day/:category' do |month, day, category|
+  @outline =
+    Outline.where(:month => month, :day => day, :category => category).first
   not_found 'No outline found for that day.' if @outline.nil?
   if @current_user.is_admin && params['as_student'] != 'true'
     students = User.where(:is_student => true).order('seating_order, id')
@@ -609,20 +610,24 @@ get '/:month/:day' do |month, day|
   end
 end
 
-get '/:month/:day/edit' do |month, day|
+get '/:month/:day/:category/edit' do |month, day, category|
   if !@current_user.is_admin
     redirect '/auth/failure?message=You+must+be+an+admin+to+edit+pages'
   end
-  @outline = Outline.where(:month => month, :day => day).first || Outline.new
+  @outline = Outline.where(
+    :month => month, :day => day, :category => category).first || Outline.new
   haml :edit_page
 end
 
-post '/:month/:day/edit' do |month, day|
+post '/:month/:day/:category/edit' do |month, day, category|
   if !@current_user.is_admin
     redirect '/auth/failure?message=You+must+be+an+admin+to+edit+pages'
   end
   unless %w[jan feb mar apr may jun jul aug sep oct nov dec].include?(month)
-    halt "Bad month"
+    halt "Bad month, should be 3-letter word like jan, feb, mar, etc."
+  end
+  unless %w[class homework].include?(category)
+    halt "Bad category, should be class or homework"
   end
   halt "Bad day, should be 2 characters" if day.size != 2
 
@@ -633,7 +638,8 @@ post '/:month/:day/edit' do |month, day|
     raise Exception, "Parse error at offset: #{parser.index}"
   end
 
-  @outline = Outline.where(:month => month, :day => day).first
+  @outline =
+    Outline.where(:month => month, :day => day, :category => category).first
 
   all_task_ids = {}
   tree.lines.each do |triple|
@@ -662,10 +668,11 @@ post '/:month/:day/edit' do |month, day|
 
   if @outline.nil?
     @outline = Outline.new({
-      :month => month,
-      :day   => day,
-      :year  => '2013',
-      :date  => "2013-#{month}-#{day}",
+      month:    month,
+      day:      day,
+      category: category,
+      year:     '2013',
+      date:     "2013-#{month}-#{day}",
     })
   end
   @outline.text = text
@@ -681,7 +688,7 @@ post '/:month/:day/edit' do |month, day|
     exercise.save!
   end
 
-  redirect "/#{month}/#{day}"
+  redirect "/#{month}/#{day}/#{category}"
 end
 
 after do
