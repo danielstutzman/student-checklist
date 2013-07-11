@@ -148,6 +148,9 @@ end
 def backticks_to_html(text)
   text.gsub(/`([^`]+)`/, "<code>\\1</code>")
 end
+def blank_to_nil(s)
+  (s == '') ? nil : s
+end
 
 beanstalk = Beaneater::Pool.new('127.0.0.1:11300')
 
@@ -677,7 +680,7 @@ post '/:month/:day/:category/edit' do |month, day, category|
   end
   @outline.text = text
   @outline.first_line = text.split("\n").first
-  @outline.handout_url = params['handout_url']
+  @outline.handout_url = blank_to_nil(params['handout_url'])
   @outline.save!
 
   tree.lines.each do |triple|
