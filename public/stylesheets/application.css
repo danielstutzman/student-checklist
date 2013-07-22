@@ -134,3 +134,9 @@ table.weeks .week-label {
 table.weeks tr.last-day > td {
   padding-bottom: 15px;
 }
+
+tr.event td,
+tr.event td a {
+  color: #44a;
+}
+
