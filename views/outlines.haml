@@ -34,7 +34,7 @@
                 %img(src='/images/homework-icon.png' width='16' height='16')
           %td
             %a{href: "/#{outline.month}/#{outline.day}/#{outline.category}"}
-              != outline.first_line.gsub(/^[^:]*: /, '').gsub(/`([^`]*)`/, "<code>\\1</code>")
+              != outline.first_line.gsub(/</, '&lt;').gsub(/>/, '&gt;').gsub(/^[^:]*: /, '').gsub(/`([^`]*)`/, "<code>\\1</code>")
         - elsif Event === dated
           - event = dated
 
