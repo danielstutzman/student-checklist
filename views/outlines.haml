@@ -29,12 +29,17 @@
               %a{ href: outline.handout_url }
                 %img(src='/images/gray-document.png' width='16' height='16')
           %td
+            - if Outline.where(month: outline.month, day: outline.day, category: 'homework').size > 0
+              %a{href: "/#{outline.month}/#{outline.day}/homework"}
+                %img(src='/images/homework-icon.png' width='16' height='16')
+          %td
             %a{href: "/#{outline.month}/#{outline.day}/#{outline.category}"}
               != outline.first_line.gsub(/^[^:]*: /, '').gsub(/`([^`]*)`/, "<code>\\1</code>")
         - elsif Event === dated
           - event = dated
 
-          -# skip one column for the outline's image link
+          -# skip two columns for images
+          %td
           %td
 
           - if event.more_info_url
@@ -43,7 +48,8 @@
           - else
             %td= event.details
         - elsif Week === dated
-          -# skip one column for the outline's image link
+          -# skip two columns for images
+          %td
           %td
 
           %td= dated.details

@@ -293,7 +293,8 @@ end
 get '/' do
   @weeks = Week.order('begin_date')
   @outlines = Outline.select(
-    'id, date, month, day, category, first_line, handout_url').order('date')
+    'id, date, month, day, category, first_line, handout_url'
+    ).where("category != 'homework'").order('date')
   @events = Event.order("date, hour")
   haml :outlines
 end
